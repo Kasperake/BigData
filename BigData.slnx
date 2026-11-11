@@ -4,9 +4,10 @@
     <Project Path="lib/Cqrs/src/Cqrs.Infrastructure/Cqrs.Infrastructure.csproj" />
   </Folder>
   <Folder Name="/src/">
-    <Project Path="src/BigData.Infrastructure/BigData.Infrastructure.csproj" />
     <Project Path="src/BigData.API/BigData.API.csproj" />
     <Project Path="src/BigData.Application/BigData.Application.csproj" />
     <Project Path="src/BigData.Domain/BigData.Domain.csproj" />
+    <Project Path="src/BigData.Infrastructure/BigData.Infrastructure.csproj" />
+    <Project Path="src/BigData.UI/BigData.UI.csproj" Id="10329765-3fe9-4f1c-947d-baa995c5fde3" />
   </Folder>
 </Solution>
