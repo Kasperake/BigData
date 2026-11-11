@@ -1,5 +1,16 @@
 ﻿@page "/"
+@using BigData.UI.Clients.Models
 
+<MudDataGrid Items="@Elements.Take(4)">
+    <Columns>
+        <PropertyColumn Property="x => x.Id" Title="Id" />
+    </Columns>
+</MudDataGrid>
 @code {
+    private IEnumerable<GetWeatherObservationsResponseDTO> Elements = new List<GetWeatherObservationsResponseDTO>();
 
+    protected override async Task OnInitializedAsync()
+    {
+
+    }
 }
