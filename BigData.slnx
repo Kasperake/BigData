@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/Cqrs/">
+    <Project Path="../Cqrs/src/Cqrs.Abstractions/Cqrs.Abstractions.csproj" />
+    <Project Path="../Cqrs/src/Cqrs.Infrastructure/Cqrs.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="BigData.Infrastructure/BigData.Infrastructure.csproj" />
+    <Project Path="src/BigData.API/BigData.API.csproj" />
+    <Project Path="src/BigData.Application/BigData.Application.csproj" />
+    <Project Path="src/BigData.Domain/BigData.Domain.csproj" />
+  </Folder>
+</Solution>
