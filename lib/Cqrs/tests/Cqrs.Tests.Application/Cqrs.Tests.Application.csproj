@@ -1,0 +1,8 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Stands in for a real Application layer: it only references Cqrs.Abstractions. -->
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Cqrs.Abstractions\Cqrs.Abstractions.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -9,7 +9,7 @@ public class GetWeatherObservationsQueryHandler(IWeatherObservationReadRepositor
     {
         return new GetWeatherObservationsResponse
         {
-            Items = await readRepository.GetAllAsync(cancellationToken)
+            Items = await readRepository.GetAllAsync(query.Page, query.PageSize, cancellationToken)
         };
     }
 }

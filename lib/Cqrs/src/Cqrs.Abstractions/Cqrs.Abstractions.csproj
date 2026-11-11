@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>CQRS contracts: commands, queries, notifications, their handlers and pipeline behaviors. Reference it from Application and Domain layers. It has no dependencies.</Description>
+  </PropertyGroup>
+
+</Project>

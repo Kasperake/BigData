@@ -1,9 +1,8 @@
 ﻿using BigData.Application.GetWeatherObservations;
 
-namespace BigData.Infrastructure.Persistence
+namespace BigData.Infrastructure.Persistence;
+
+public interface IWeatherObservationReadRepository
 {
-    public interface IWeatherObservationReadRepository
-    {
-        Task<List<GetWeatherObservationsItem>> GetAllAsync(CancellationToken cancellationToken = default);
-    }
+    Task<List<GetWeatherObservationsItem>> GetAllAsync(int page, int pageSize, CancellationToken cancellationToken = default);
 }

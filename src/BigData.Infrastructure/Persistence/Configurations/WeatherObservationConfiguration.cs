@@ -35,5 +35,9 @@ internal class WeatherObservationConfiguration : IEntityTypeConfiguration<Weathe
 
         builder.Property(x => x.Latitude)
             .IsRequired(false);
+
+        builder.HasIndex(x => x.CreatedAtUtc)
+            .HasDatabaseName("IX_WeatherObservation_CreatedAtUtc")
+            .IsDescending(true);
     }
 }
