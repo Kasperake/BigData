@@ -16,9 +16,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Cqrs\src\Cqrs.Infrastructure\Cqrs.Infrastructure.csproj" />
-    <ProjectReference Include="..\src\BigData.Application\BigData.Application.csproj" />
-    <ProjectReference Include="..\src\BigData.Domain\BigData.Domain.csproj" />
+    <ProjectReference Include="..\..\lib\Cqrs\src\Cqrs.Infrastructure\Cqrs.Infrastructure.csproj" />
+    <ProjectReference Include="..\BigData.Application\BigData.Application.csproj" />
+    <ProjectReference Include="..\BigData.Domain\BigData.Domain.csproj" />
   </ItemGroup>
 
 </Project>

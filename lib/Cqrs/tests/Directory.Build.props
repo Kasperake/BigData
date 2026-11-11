@@ -1,0 +1,14 @@
+<Project>
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
+
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <!--
+      CA1812: internal handlers and behaviors are instantiated by the DI container.
+      CA1707: test names use underscores.
+      CA2007: xUnit forbids ConfigureAwait in test methods (xUnit1030).
+    -->
+    <NoWarn>$(NoWarn);CA1812;CA1707;CA2007</NoWarn>
+  </PropertyGroup>
+</Project>
