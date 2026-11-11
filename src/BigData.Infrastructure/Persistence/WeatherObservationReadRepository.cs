@@ -7,9 +7,11 @@ namespace BigData.Infrastructure.Persistence;
 
 public class WeatherObservationReadRepository(WeatherDbContext dbContext) : IWeatherObservationReadRepository
 {
-    public async Task<List<GetWeatherObservationsItem>> GetAllAsync(CancellationToken cancellationToken = default)
+    public async Task<List<GetWeatherObservationsItem>> GetAllAsync(int page, int pageSize, CancellationToken cancellationToken = default)
     {
         return await dbContext.WeatherObservations
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
             .Select(x => new GetWeatherObservationsItem
             {
                 Id = x.Id,
@@ -21,6 +23,7 @@ public class WeatherObservationReadRepository(WeatherDbContext dbContext) : IWea
                 Longitude = x.Longitude,
                 Latitude = x.Latitude
             })
+            .OrderByDescending(x => x.ObservedAtUtc)
             .ToListAsync(cancellationToken);
     }
 }
