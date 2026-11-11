@@ -1,3 +1,4 @@
+using BigData.API.ExceptionHandler;
 using BigData.Application;
 using BigData.Infrastructure.Persistence;
 using BigData.Infrastructure.Persistence.EFCore;
@@ -19,6 +20,13 @@ builder.Services.AddScoped<IWeatherObservationReadRepository, WeatherObservation
 
 builder.Services.AddCqrs(options => options.RegisterHandlersFromAssembly(typeof(ApplicationAssemblyMarker).Assembly));
 
+builder.Services.AddProblemDetails(options =>
+    options.CustomizeProblemDetails = ctx =>
+        ctx.ProblemDetails.Instance ??=
+            $"{ctx.HttpContext.Request.Method} {ctx.HttpContext.Request.Path}");
+
+builder.Services.AddExceptionHandler<WeatherExceptionHandler>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -28,6 +36,7 @@ if (app.Environment.IsDevelopment())
     app.MapScalarApiReference();
 }
 
+app.UseExceptionHandler();
 
 app.UseHttpsRedirection();
 
