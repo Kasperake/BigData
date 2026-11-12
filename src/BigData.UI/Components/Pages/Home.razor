@@ -1,6 +1,8 @@
 ﻿@page "/"
 @using BigData.UI.Clients
 @using BigData.UI.Clients.Models
+@using BigData.UI.Components.Pages.Features
+@inject IDialogService DialogService
 @inject IWeatherClient WeatherClient
 
     <MudGrid>
@@ -15,6 +17,11 @@
                 <PropertyColumn Property="x => x.ObservedAtUtc" Title="Observed At (UTC)" Filterable="true" />
                 <PropertyColumn Property="x => x.CreatedAtUtc" Title="Created At (UTC)" Filterable="true" />
                 <PropertyColumn Property="x => x.ParameterId" Title="Parameter Id" Filterable="true" />
+                <TemplateColumn>
+                    <CellTemplate>
+                            <MudButton Size="@Size.Small" Variant="@Variant.Filled" Color="@Color.Primary" OnClick="@OpenDialogAsync">Details</MudButton>
+                    </CellTemplate>
+                </TemplateColumn>
             </Columns>
         </MudDataGrid>
             </MudItem>
@@ -90,5 +97,13 @@
                 CreatedAtUtc = DateTime.UtcNow.AddMinutes(-24)
             }
         ];
+    }
+
+    // Dialog for detail button
+    private Task OpenDialogAsync()
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true };
+
+        return DialogService.ShowAsync<WeatherDetailsDialog>("Simple Dialog", options);
     }
 }
