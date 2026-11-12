@@ -7,7 +7,10 @@
 
     <MudGrid>
         <MudItem>
-        <MudDataGrid Items="@Items">
+        <MudDataGrid T="GetWeatherObservationsItem"
+                     ServerData="@GetData"
+                     RowsPerPage="@PageSize">
+
             <Columns>
                 <PropertyColumn Property="x => x.Id" Title="Id" />
                 <PropertyColumn Property="x => x.StationId" Title="Station" Filterable="true" />
@@ -32,79 +35,20 @@
 
 @code {
     private IEnumerable<GetWeatherObservationsItem> Items = [];
-    protected override async Task OnInitializedAsync()
-    {
-        await GetData(1, 10);
-    }
+    private int PageSize = 20;
 
-    protected async Task GetData(int page, int pageSize)
+    private async Task<GridData<GetWeatherObservationsItem>> GetData(GridState<GetWeatherObservationsItem> state, CancellationToken ct)
     {
-        var result = await WeatherClient.GetAsync(page, pageSize);
-        Items = result.Items;
-    
-    }
+        var page = state.Page + 1;
+        var pageSize = state.PageSize == 0 ? PageSize : state.PageSize;
 
-    // Mock data
-    protected async Task GetMockData()
-    {
-        Items =
-        [
-            new()
-            {
-                Id = Guid.NewGuid(),
-                StationId = "DK-CPH-001",
-                ParameterId = "temp",
-                Value = 12.4,
-                Latitude = 55.6761,
-                Longitude = 12.5683,
-                ObservedAtUtc = DateTime.UtcNow.AddMinutes(-5),
-                CreatedAtUtc = DateTime.UtcNow.AddMinutes(-4)
-            },
-            new()
-            {
-                Id = Guid.NewGuid(),
-                StationId = "DK-AAR-002",
-                ParameterId = "humidity",
-                Value = 74.2,
-                Latitude = 56.1629,
-                Longitude = 10.2039,
-                ObservedAtUtc = DateTime.UtcNow.AddMinutes(-10),
-                CreatedAtUtc = DateTime.UtcNow.AddMinutes(-9)
-            },
-            new()
-            {
-                Id = Guid.NewGuid(),
-                StationId = "DK-ODE-003",
-                ParameterId = "pressure",
-                Value = 1013.7,
-                Latitude = 55.4038,
-                Longitude = 10.4024,
-                ObservedAtUtc = DateTime.UtcNow.AddMinutes(-15),
-                CreatedAtUtc = DateTime.UtcNow.AddMinutes(-14)
-            },
-            new()
-            {
-                Id = Guid.NewGuid(),
-                StationId = "DK-AAL-004",
-                ParameterId = "wind",
-                Value = 6.1,
-                Latitude = 57.0488,
-                Longitude = 9.9217,
-                ObservedAtUtc = DateTime.UtcNow.AddMinutes(-20),
-                CreatedAtUtc = DateTime.UtcNow.AddMinutes(-19)
-            },
-            new()
-            {
-                Id = Guid.NewGuid(),
-                StationId = "DK-RSK-005",
-                ParameterId = "rain",
-                Value = 1.8,
-                Latitude = 55.6415,
-                Longitude = 12.0803,
-                ObservedAtUtc = DateTime.UtcNow.AddMinutes(-25),
-                CreatedAtUtc = DateTime.UtcNow.AddMinutes(-24)
-            }
-        ];
+        var result = await WeatherClient.GetAsync(page, pageSize, ct);
+
+        return new GridData<GetWeatherObservationsItem>
+        {
+            Items = result.Items ?? [],
+            TotalItems = result.TotalCount
+        };
     }
 
     // Dialog for detail button
