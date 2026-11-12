@@ -5,6 +5,7 @@ using BigData.Infrastructure.BackgroundServices;
 using BigData.Infrastructure.Clients;
 using BigData.Infrastructure.Persistence;
 using BigData.Infrastructure.Persistence.EFCore;
+using Cqrs.Abstractions;
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
 
@@ -18,6 +19,9 @@ builder.Services.AddOpenApi();
 
 builder.Services.AddDbContext<WeatherDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("ConnectionString is missing")));
+
+// Every dispatched command commits through this after its handler succeeds.
+builder.Services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<WeatherDbContext>());
 
 builder.Services.AddScoped<IWeatherObservationReadRepository, WeatherObservationReadRepository>();
 builder.Services.AddScoped<IWeatherObservationRepository, WeatherObservationRepository>();

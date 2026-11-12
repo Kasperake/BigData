@@ -31,13 +31,19 @@ internal sealed class CommandDispatcher<TCommand, TResult> : CommandDispatcherBa
                 ?? throw new HandlerNotFoundException(typeof(TCommand), typeof(ICommandHandler<TCommand, TResult>));
 
             var behaviors = RequestPipeline.ResolveBehaviors<TCommand, TResult>(serviceProvider);
+            var handle = RequestPipeline.WithUnitOfWork(
+                typedCommand,
+                behaviors,
+                token => handler.HandleAsync(typedCommand, token),
+                serviceProvider);
+
             if (behaviors.Length == 0)
             {
-                return await handler.HandleAsync(typedCommand, cancellationToken).ConfigureAwait(false);
+                return await handle(cancellationToken).ConfigureAwait(false);
             }
 
             return await RequestPipeline
-                .InvokeAsync(typedCommand, behaviors, token => handler.HandleAsync(typedCommand, token), cancellationToken)
+                .InvokeAsync(typedCommand, behaviors, handle, cancellationToken)
                 .ConfigureAwait(false);
         }
         catch (Exception exception)
