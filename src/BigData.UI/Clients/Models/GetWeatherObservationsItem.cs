@@ -1,6 +1,6 @@
 ﻿namespace BigData.UI.Clients.Models
 {
-    public class GetWeatherObservationsResponseDTO
+    public class GetWeatherObservationsItem
     {
         public Guid Id { get; set; }
         public string StationId { get; set; }

@@ -23,21 +23,29 @@
                     </CellTemplate>
                 </TemplateColumn>
             </Columns>
+            <PagerContent>
+                <MudDataGridPager T="GetWeatherObservationsItem" />
+            </PagerContent>
         </MudDataGrid>
             </MudItem>
     </MudGrid>
 
 @code {
-    private IEnumerable<GetWeatherObservationsResponseDTO> Items = [];
+    private IEnumerable<GetWeatherObservationsItem> Items = [];
     protected override async Task OnInitializedAsync()
     {
-        await GetItems();
-        //var result = await WeatherClient.GetAsync(); 
-        //Items = result.Items;
+        await GetData(1, 10);
+    }
+
+    protected async Task GetData(int page, int pageSize)
+    {
+        var result = await WeatherClient.GetAsync(page, pageSize);
+        Items = result.Items;
+    
     }
 
     // Mock data
-    protected async Task GetItems()
+    protected async Task GetMockData()
     {
         Items =
         [

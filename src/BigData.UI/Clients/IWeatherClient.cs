@@ -4,6 +4,6 @@ namespace BigData.UI.Clients
 {
     public interface IWeatherClient
     {
-        Task<GetWeatherObservationsItemDTO> GetAsync(int page, int pageSize, CancellationToken ct = default);
+        Task<GetWeatherObservationsResponse> GetAsync(int page = 1, int pageSize = 50, CancellationToken ct = default);
     }
 }
