@@ -20,8 +20,8 @@ builder.Services.AddOpenApi();
 builder.Services.AddDbContext<WeatherDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("ConnectionString is missing")));
 
-// Every dispatched command commits through this after its handler succeeds.
-builder.Services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<WeatherDbContext>());
+// Auto commit unitofwork command behavior. 
+builder.Services.AddScoped<IUnitOfWork, EfCoreUnitOfWork>();
 
 builder.Services.AddScoped<IWeatherObservationReadRepository, WeatherObservationReadRepository>();
 builder.Services.AddScoped<IWeatherObservationRepository, WeatherObservationRepository>();

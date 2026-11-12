@@ -14,8 +14,10 @@ internal static class RequestPipeline
     }
 
     /// <summary>
-    /// Makes <paramref name="handler"/> commit the registered <see cref="IUnitOfWork"/> once it succeeds, so the commit
-    /// is the innermost step of the pipeline. Returns <paramref name="handler"/> unchanged when the command opts out
+    /// Runs <paramref name="handler"/> inside the registered <see cref="IUnitOfWork"/>: begin, handle, commit, and roll
+    /// back if the handler or the commit throws. It is the innermost step of the pipeline, so outer behaviors such as
+    /// validation run before a transaction opens. Joins an already active transaction instead of beginning a nested
+    /// one. Returns <paramref name="handler"/> unchanged when the command opts out
     /// (<see cref="IManuallyPersistedCommand"/>), when a <see cref="UnitOfWorkBehavior{TRequest, TResponse}"/> already
     /// owns the unit of work, or when no <see cref="IUnitOfWork"/> is registered.
     /// </summary>
@@ -38,12 +40,45 @@ internal static class RequestPipeline
             return handler;
         }
 
-        return async token =>
+        return token => RunInUnitOfWorkAsync(unitOfWork, handler, token);
+    }
+
+    private static async Task<TResponse> RunInUnitOfWorkAsync<TResponse>(
+        IUnitOfWork unitOfWork,
+        RequestHandlerDelegate<TResponse> handler,
+        CancellationToken cancellationToken)
+    {
+        if (unitOfWork.HasActiveTransaction)
         {
-            var response = await handler(token).ConfigureAwait(false);
-            await unitOfWork.CommitAsync(token).ConfigureAwait(false);
+            // An outer command owns the transaction; it commits or rolls back this command's changes too.
+            return await handler(cancellationToken).ConfigureAwait(false);
+        }
+
+        await unitOfWork.BeginAsync(cancellationToken).ConfigureAwait(false);
+
+        try
+        {
+            var response = await handler(cancellationToken).ConfigureAwait(false);
+            await unitOfWork.CommitAsync(cancellationToken).ConfigureAwait(false);
             return response;
-        };
+        }
+        catch (Exception exception)
+        {
+            try
+            {
+                // Not the caller's token: a cancelled command must still be rolled back.
+                await unitOfWork.RollbackAsync(CancellationToken.None).ConfigureAwait(false);
+            }
+            catch (Exception rollbackException)
+            {
+                throw new AggregateException(
+                    "The command failed and rolling back its unit of work failed too.",
+                    exception,
+                    rollbackException);
+            }
+
+            throw;
+        }
     }
 
     /// <summary>
