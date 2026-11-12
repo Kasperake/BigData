@@ -119,8 +119,54 @@ internal sealed class LoggingBehavior<TRequest, TResponse>(ILogger<LoggingBehavi
 
 ## Unit of work
 
-The transaction logic is the next milestone, but its base class and its opt-out are in place. Derive the behavior from
-`UnitOfWorkBehavior<TRequest, TResponse>` (in `Cqrs.Abstractions`):
+Register a scoped `IUnitOfWork` and every dispatched command runs in a transaction automatically:
+
+1. `BeginAsync` before the handler. This is the innermost step, so outer behaviors such as validation run first and
+   never open a transaction.
+2. `CommitAsync` after the handler succeeds.
+3. `RollbackAsync` if the handler or the commit throws. It is called with `CancellationToken.None`, so a cancelled
+   command is still rolled back. The original exception is rethrown. If the rollback fails too, both exceptions are
+   thrown together in an `AggregateException`.
+
+A command sent while a transaction is already active (from inside another command's handler) joins it, and only the
+outermost command commits or rolls back. Queries never run in a transaction.
+
+```csharp
+public sealed class EfCoreUnitOfWork(OrdersDbContext db) : IUnitOfWork
+{
+    private IDbContextTransaction? _transaction;
+
+    public bool HasActiveTransaction => _transaction is not null;
+
+    public async Task BeginAsync(CancellationToken ct) => _transaction = await db.Database.BeginTransactionAsync(ct);
+
+    public async Task CommitAsync(CancellationToken ct)
+    {
+        await db.SaveChangesAsync(ct);
+        await _transaction!.CommitAsync(ct);
+        await _transaction.DisposeAsync();
+        _transaction = null;
+    }
+
+    public async Task RollbackAsync(CancellationToken ct)
+    {
+        try { if (_transaction is not null) await _transaction.RollbackAsync(ct); }
+        finally { db.ChangeTracker.Clear(); _transaction?.Dispose(); _transaction = null; }
+    }
+}
+
+builder.Services.AddScoped<IUnitOfWork, EfCoreUnitOfWork>();
+```
+
+Handlers then only change tracked state; they do not call `SaveChangesAsync` themselves. If EF Core's
+`EnableRetryOnFailure` is turned on, user-initiated transactions must run through `Database.CreateExecutionStrategy()`;
+use a custom `UnitOfWorkBehavior` (below) for that.
+
+### Custom unit of work behavior
+
+When you need more than a commit (explicit transactions, retries, per-module contexts), derive a behavior from
+`UnitOfWorkBehavior<TRequest, TResponse>` (in `Cqrs.Abstractions`). When one is registered for a command, it owns the
+unit of work and the automatic commit is skipped:
 
 ```csharp
 internal sealed class OrdersUnitOfWorkBehavior<TRequest, TResponse>(OrdersDbContext db)
