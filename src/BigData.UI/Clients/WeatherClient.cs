@@ -1,20 +1,9 @@
 ﻿using BigData.UI.Clients.Models;
-using System.Text.Json;
 
 namespace BigData.UI.Clients
 {
-    public class WeatherClient
+    public sealed class WeatherClient(HttpClient client) : IWeatherClient
     {
-        public async Task<GetWeatherObservationsItemDTO?> GetWeatherForecastsAsync(HttpClient httpClient)
-        {
-            var response = await httpClient.GetAsync("https://localhost:5001/api/weatherobservations");
-            response.EnsureSuccessStatusCode();
-            var content = await response.Content.ReadAsStringAsync();
-            var weatherObservations = JsonSerializer.Deserialize<GetWeatherObservationsItemDTO>(content, new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true
-            });
-            return weatherObservations;
-        }
+        public Task<GetWeatherObservationsItemDTO> GetAsync(CancellationToken ct) => client.GetFromJsonAsync<GetWeatherObservationsItemDTO>("api/weather?page=1&pageSize=50", ct);
     }
 }

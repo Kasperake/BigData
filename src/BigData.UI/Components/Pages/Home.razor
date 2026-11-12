@@ -1,16 +1,21 @@
 ﻿@page "/"
+@using BigData.UI.Clients
 @using BigData.UI.Clients.Models
+@inject IWeatherClient WeatherClient
 
-<MudDataGrid Items="@Elements.Take(4)">
+<MudDataGrid Items="@Items">
     <Columns>
         <PropertyColumn Property="x => x.Id" Title="Id" />
+        <PropertyColumn Property="x => x.StationId" Title="Station" />
+        <PropertyColumn Property="x => x.Value" Title="Value" />
     </Columns>
 </MudDataGrid>
-@code {
-    private IEnumerable<GetWeatherObservationsResponseDTO> Elements = new List<GetWeatherObservationsResponseDTO>();
 
+@code {
+    private IEnumerable<GetWeatherObservationsResponseDTO> Items = [];
     protected override async Task OnInitializedAsync()
     {
-
+        var result = await WeatherClient.GetAsync(CancellationToken.None); // Hvad skal vi gøre ved CT?
+        Items = result.Items;
     }
 }

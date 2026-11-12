@@ -2,6 +2,6 @@
 {
     public class GetWeatherObservationsItemDTO
     {
-        public List<GetWeatherObservationsItemDTO> Items { get; set; } = [];
+        public List<GetWeatherObservationsResponseDTO> Items { get; set; } = [];
     }
 }
