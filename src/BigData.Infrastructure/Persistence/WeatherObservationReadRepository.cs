@@ -26,4 +26,9 @@ public class WeatherObservationReadRepository(WeatherDbContext dbContext) : IWea
             .OrderByDescending(x => x.ObservedAtUtc)
             .ToListAsync(cancellationToken);
     }
+
+    public async Task<int> CountAsync(CancellationToken cancellationToken = default)
+    {
+        return await dbContext.WeatherObservations.CountAsync(cancellationToken);
+    }
 }
