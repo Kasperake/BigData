@@ -15,7 +15,7 @@
     private IEnumerable<GetWeatherObservationsResponseDTO> Items = [];
     protected override async Task OnInitializedAsync()
     {
-        var result = await WeatherClient.GetAsync(CancellationToken.None); // Hvad skal vi gøre ved CT?
+        var result = await WeatherClient.GetAsync(CancellationToken.None); 
         Items = result.Items;
     }
 }
