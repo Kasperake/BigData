@@ -4,5 +4,5 @@ namespace BigData.Domain.Repositories;
 
 public interface IWeatherObservationRepository
 {
-    Task UpsertAsync(WeatherObservation observation, CancellationToken cancellationToken);
+    Task InsertIfExistsAsync(WeatherObservation observation, CancellationToken cancellationToken);
 }

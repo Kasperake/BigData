@@ -6,7 +6,7 @@ namespace BigData.Infrastructure.Persistence;
 
 public class WeatherObservationRepository(WeatherDbContext dbContext) : IWeatherObservationRepository
 {
-    public async Task UpsertAsync(WeatherObservation observation, CancellationToken cancellationToken)
+    public async Task InsertIfExistsAsync(WeatherObservation observation, CancellationToken cancellationToken)
     {
         var existing = await dbContext.WeatherObservations.FindAsync([observation.Id], cancellationToken);
 
@@ -15,7 +15,5 @@ public class WeatherObservationRepository(WeatherDbContext dbContext) : IWeather
             dbContext.WeatherObservations.Add(observation);
             return;
         }
-
-        dbContext.Entry(existing).CurrentValues.SetValues(observation);
     }
 }

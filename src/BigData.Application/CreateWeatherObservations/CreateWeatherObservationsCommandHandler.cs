@@ -3,13 +3,13 @@ using BigData.Domain.Entities;
 using BigData.Domain.Repositories;
 using Cqrs.Abstractions;
 
-namespace BigData.Application.UpsertWeatherObservations;
+namespace BigData.Application.CreateWeatherObservations;
 
-public class UpsertWeatherObservationsCommandHandler(
+public class CreateWeatherObservationsCommandHandler(
     IDmiWeatherClient client,
-    IWeatherObservationRepository repository) : ICommandHandler<UpsertWeatherObservationsCommand>
+    IWeatherObservationRepository repository) : ICommandHandler<CreateWeatherObservationsCommand>
 {
-    public async Task HandleAsync(UpsertWeatherObservationsCommand command, CancellationToken cancellationToken)
+    public async Task HandleAsync(CreateWeatherObservationsCommand command, CancellationToken cancellationToken)
     {
         var observations = await client.FetchAsync(cancellationToken);
 
@@ -25,7 +25,7 @@ public class UpsertWeatherObservationsCommandHandler(
                 o.Longitude,
                 o.Latitude);
 
-            await repository.UpsertAsync(observation, cancellationToken);
+            await repository.InsertIfExistsAsync(observation, cancellationToken);
         }
     }
 }

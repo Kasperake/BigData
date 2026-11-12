@@ -1,4 +1,4 @@
-﻿using BigData.Application.UpsertWeatherObservations;
+﻿using BigData.Application.CreateWeatherObservations;
 using Cqrs.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -20,7 +20,7 @@ public class WeatherImportWorker(
 
                 var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
 
-                await mediator.SendAsync(new UpsertWeatherObservationsCommand(), stoppingToken);
+                await mediator.SendAsync(new CreateWeatherObservationsCommand(), stoppingToken);
 
                 await Task.Delay(TimeSpan.FromMinutes(5), stoppingToken);
             }
