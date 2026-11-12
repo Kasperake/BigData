@@ -1,20 +1,44 @@
-﻿<MudDialog>
+﻿@using BigData.UI.Clients.Models
+
+<MudDialog>
     <TitleContent>
-        Dialog Title
+        Weather Details
     </TitleContent>
+
     <DialogContent>
-        Dialog Content
+        <MudCard>
+            <MudCardContent Style="width:400px">
+                @if (Item is null)
+                {
+                    <MudText>No details available.</MudText>
+                }
+                else
+                {
+                    <MudForm ReadOnly="true" Spacing="2">
+                        <MudTextField T="string" Label="Id" Text="@Item.Id.ToString()"/>
+                        <MudTextField T="string" Label="StationId" Text="@Item.StationId.ToString()" />
+                        <MudTextField T="string" Label="Latitude" Text="@Item.Latitude.ToString()" />
+                        <MudTextField T="string" Label="Longitude" Text="@Item.Longitude.ToString()" />
+                        <MudTextField T="string" Label="Created At (UTC)" Text="@Item.CreatedAtUtc.ToString()" />
+                        <MudTextField T="string" Label="Observed At (UTC)" Text="@Item.ObservedAtUtc.ToString()" />
+                        <MudTextField T="string" Label="ParameterId" Text="@Item.ParameterId.ToString()" />
+                    </MudForm>
+                }
+            </MudCardContent>
+        </MudCard>
     </DialogContent>
+
     <DialogActions>
-        <MudButton OnClick="Cancel">Cancel</MudButton>
-        <MudButton Color="Color.Primary" OnClick="Submit">OK</MudButton>
+        <MudButton Color="Color.Primary" OnClick="Close">Close</MudButton>
     </DialogActions>
 </MudDialog>
+
 @code {
     [CascadingParameter]
-    private IMudDialogInstance MudDialog { get; set; }
+    private IMudDialogInstance MudDialog { get; set; } = default!;
 
-    private void Submit() => MudDialog.Close(DialogResult.Ok(true));
+    [Parameter]
+    public GetWeatherObservationsItem? Item { get; set; }
 
-    private void Cancel() => MudDialog.Cancel();
+    private void Close() => MudDialog.Close();
 }

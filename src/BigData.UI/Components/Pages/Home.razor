@@ -19,7 +19,7 @@
                 <PropertyColumn Property="x => x.ObservedAtUtc" Title="Observed At (UTC)" Filterable="true" />
                 <TemplateColumn>
                     <CellTemplate>
-                            <MudButton Size="@Size.Small" Variant="@Variant.Filled" Color="@Color.Primary" OnClick="@OpenDialogAsync">Details</MudButton>
+                        <MudButton Size="@Size.Small" Variant="@Variant.Filled" Color="@Color.Primary" OnClick="@(() => OpenDialogAsync(context.Item))">Details</MudButton>
                     </CellTemplate>
                 </TemplateColumn>
             </Columns>
@@ -49,10 +49,15 @@
     }
 
     // Dialog for detail button
-    private Task OpenDialogAsync()
+    private Task OpenDialogAsync(GetWeatherObservationsItem item)
     {
         var options = new DialogOptions { CloseOnEscapeKey = true };
 
-        return DialogService.ShowAsync<WeatherDetailsDialog>("Simple Dialog", options);
+        var parameters = new DialogParameters<WeatherDetailsDialog>
+        {
+            { x => x.Item, item }
+        };
+
+        return DialogService.ShowAsync<WeatherDetailsDialog>("Weather Details", parameters, options);
     }
 }
