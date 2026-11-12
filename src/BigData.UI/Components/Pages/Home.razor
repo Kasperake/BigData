@@ -12,14 +12,11 @@
                      RowsPerPage="@PageSize">
 
             <Columns>
-                <PropertyColumn Property="x => x.Id" Title="Id" />
                 <PropertyColumn Property="x => x.StationId" Title="Station" Filterable="true" />
                 <PropertyColumn Property="x => x.Value" Title="Value" Filterable="true" />
                 <PropertyColumn Property="x => x.Latitude" Title="Latitude" Filterable="true" />
                 <PropertyColumn Property="x => x.Longitude" Title="Longitude" Filterable="true" />
                 <PropertyColumn Property="x => x.ObservedAtUtc" Title="Observed At (UTC)" Filterable="true" />
-                <PropertyColumn Property="x => x.CreatedAtUtc" Title="Created At (UTC)" Filterable="true" />
-                <PropertyColumn Property="x => x.ParameterId" Title="Parameter Id" Filterable="true" />
                 <TemplateColumn>
                     <CellTemplate>
                             <MudButton Size="@Size.Small" Variant="@Variant.Filled" Color="@Color.Primary" OnClick="@OpenDialogAsync">Details</MudButton>
@@ -40,7 +37,7 @@
     private async Task<GridData<GetWeatherObservationsItem>> GetData(GridState<GetWeatherObservationsItem> state, CancellationToken ct)
     {
         var page = state.Page + 1;
-        var pageSize = state.PageSize == 0 ? PageSize : state.PageSize;
+        var pageSize = state.PageSize;
 
         var result = await WeatherClient.GetAsync(page, pageSize, ct);
 
