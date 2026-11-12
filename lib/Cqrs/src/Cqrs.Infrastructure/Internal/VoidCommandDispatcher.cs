@@ -27,22 +27,24 @@ internal sealed class VoidCommandDispatcher<TCommand> : VoidCommandDispatcherBas
                 ?? throw new HandlerNotFoundException(typeof(TCommand), typeof(ICommandHandler<TCommand>));
 
             var behaviors = RequestPipeline.ResolveBehaviors<TCommand, Unit>(serviceProvider);
+            var handle = RequestPipeline.WithUnitOfWork(
+                typedCommand,
+                behaviors,
+                async token =>
+                {
+                    await handler.HandleAsync(typedCommand, token).ConfigureAwait(false);
+                    return Unit.Value;
+                },
+                serviceProvider);
+
             if (behaviors.Length == 0)
             {
-                await handler.HandleAsync(typedCommand, cancellationToken).ConfigureAwait(false);
+                await handle(cancellationToken).ConfigureAwait(false);
                 return;
             }
 
             await RequestPipeline
-                .InvokeAsync(
-                    typedCommand,
-                    behaviors,
-                    async token =>
-                    {
-                        await handler.HandleAsync(typedCommand, token).ConfigureAwait(false);
-                        return Unit.Value;
-                    },
-                    cancellationToken)
+                .InvokeAsync(typedCommand, behaviors, handle, cancellationToken)
                 .ConfigureAwait(false);
         }
         catch (Exception exception)

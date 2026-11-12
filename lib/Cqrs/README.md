@@ -119,8 +119,25 @@ internal sealed class LoggingBehavior<TRequest, TResponse>(ILogger<LoggingBehavi
 
 ## Unit of work
 
-The transaction logic is the next milestone, but its base class and its opt-out are in place. Derive the behavior from
-`UnitOfWorkBehavior<TRequest, TResponse>` (in `Cqrs.Abstractions`):
+Register an `IUnitOfWork` and every dispatched command commits through it automatically, after its handler succeeds
+(innermost, so outer behaviors such as validation run first and a failed handler never commits). Queries never commit.
+
+```csharp
+public sealed class OrdersDbContext(DbContextOptions<OrdersDbContext> options) : DbContext(options), IUnitOfWork
+{
+    Task IUnitOfWork.CommitAsync(CancellationToken cancellationToken) => SaveChangesAsync(cancellationToken);
+}
+
+builder.Services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<OrdersDbContext>());
+```
+
+Handlers then only change tracked state; they do not call `SaveChangesAsync` themselves.
+
+### Custom unit of work behavior
+
+When you need more than a commit (explicit transactions, retries, per-module contexts), derive a behavior from
+`UnitOfWorkBehavior<TRequest, TResponse>` (in `Cqrs.Abstractions`). When one is registered for a command, it owns the
+unit of work and the automatic commit is skipped:
 
 ```csharp
 internal sealed class OrdersUnitOfWorkBehavior<TRequest, TResponse>(OrdersDbContext db)
