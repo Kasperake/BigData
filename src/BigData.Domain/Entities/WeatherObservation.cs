@@ -24,9 +24,9 @@ public sealed class WeatherObservation
         string parameterId,
         DateTime observedAtUtc,
         DateTime createdAtUtc,
-        float value,
-        float? longitude,
-        float? latitude)
+        double value,
+        double? longitude,
+        double? latitude)
     {
         return new()
         {
