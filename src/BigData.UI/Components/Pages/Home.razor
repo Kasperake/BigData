@@ -1,16 +1,63 @@
 ﻿@page "/"
+@using BigData.UI.Clients
 @using BigData.UI.Clients.Models
+@using BigData.UI.Components.Pages.Features
+@inject IDialogService DialogService
+@inject IWeatherClient WeatherClient
 
-<MudDataGrid Items="@Elements.Take(4)">
-    <Columns>
-        <PropertyColumn Property="x => x.Id" Title="Id" />
-    </Columns>
-</MudDataGrid>
+    <MudGrid>
+        <MudItem>
+        <MudDataGrid T="GetWeatherObservationsItem"
+                     ServerData="@GetData"
+                     RowsPerPage="@PageSize">
+
+            <Columns>
+                <PropertyColumn Property="x => x.StationId" Title="Station" Filterable="true" />
+                <PropertyColumn Property="x => x.Value" Title="Value" Filterable="true" />
+                <PropertyColumn Property="x => x.Latitude" Title="Latitude" Filterable="true" />
+                <PropertyColumn Property="x => x.Longitude" Title="Longitude" Filterable="true" />
+                <PropertyColumn Property="x => x.ObservedAtUtc" Title="Observed At (UTC)" Filterable="true" />
+                <TemplateColumn>
+                    <CellTemplate>
+                        <MudButton Size="@Size.Small" Variant="@Variant.Filled" Color="@Color.Primary" OnClick="@(() => OpenDialogAsync(context.Item))">Details</MudButton>
+                    </CellTemplate>
+                </TemplateColumn>
+            </Columns>
+            <PagerContent>
+                <MudDataGridPager T="GetWeatherObservationsItem" />
+            </PagerContent>
+        </MudDataGrid>
+            </MudItem>
+    </MudGrid>
+
 @code {
-    private IEnumerable<GetWeatherObservationsResponseDTO> Elements = new List<GetWeatherObservationsResponseDTO>();
+    private IEnumerable<GetWeatherObservationsItem> Items = [];
+    private int PageSize = 20;
 
-    protected override async Task OnInitializedAsync()
+    private async Task<GridData<GetWeatherObservationsItem>> GetData(GridState<GetWeatherObservationsItem> state, CancellationToken ct)
     {
+        var page = state.Page + 1;
+        var pageSize = state.PageSize;
 
+        var result = await WeatherClient.GetAsync(page, pageSize, ct);
+
+        return new GridData<GetWeatherObservationsItem>
+        {
+            Items = result.Items ?? [],
+            TotalItems = result.TotalCount
+        };
+    }
+
+    // Dialog for detail button
+    private Task OpenDialogAsync(GetWeatherObservationsItem item)
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true };
+
+        var parameters = new DialogParameters<WeatherDetailsDialog>
+        {
+            { x => x.Item, item }
+        };
+
+        return DialogService.ShowAsync<WeatherDetailsDialog>("Weather Details", parameters, options);
     }
 }

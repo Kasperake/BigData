@@ -3,18 +3,11 @@ using System.Text.Json;
 
 namespace BigData.UI.Clients
 {
-    public class WeatherClient
+    public sealed class WeatherClient(HttpClient client) : IWeatherClient
     {
-        public async Task<GetWeatherObservationsItemDTO?> GetWeatherForecastsAsync(HttpClient httpClient)
+        public async Task<GetWeatherObservationsResponse> GetAsync(int page, int pageSize, CancellationToken ct = default)
         {
-            var response = await httpClient.GetAsync("https://localhost:5001/api/weatherobservations");
-            response.EnsureSuccessStatusCode();
-            var content = await response.Content.ReadAsStringAsync();
-            var weatherObservations = JsonSerializer.Deserialize<GetWeatherObservationsItemDTO>(content, new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true
-            });
-            return weatherObservations;
+            return await client.GetFromJsonAsync<GetWeatherObservationsResponse>($"api/weather?page={page}&pageSize={pageSize}", ct);
         }
     }
 }
