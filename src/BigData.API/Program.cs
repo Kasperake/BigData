@@ -20,6 +20,12 @@ builder.Services.AddOpenApi();
 builder.Services.AddDbContext<WeatherDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("ConnectionString is missing")));
 
+
+// MongoDb
+builder.Services.AddDbContext<WeatherMongoDbContext>(options =>
+    options.UseMongoDB(builder.Configuration.GetConnectionString("MongoDbConnection") ?? throw new InvalidOperationException("ConnectionString is missing")));
+
+
 // Auto commit unitofwork command behavior. 
 builder.Services.AddScoped<IUnitOfWork, EfCoreUnitOfWork>();
 
