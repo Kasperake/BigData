@@ -11,9 +11,10 @@ public class CreateWeatherObservationsCommandHandler(
     IWeatherObservationRepository repository,
     IWeatherObservationReadRepository readRepository) : ICommandHandler<CreateWeatherObservationsCommand>
 {
+
     public async Task HandleAsync(CreateWeatherObservationsCommand command, CancellationToken cancellationToken)
     {
-        var observations = await client.FetchAsync(cancellationToken);
+        var observations = await client.FetchAsync(command.ParameterId, cancellationToken);
 
         var existingIds = await readRepository.GetExistingIdsAsync(
             observations.Select(o => o.Id).Distinct().ToList(),

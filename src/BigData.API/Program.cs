@@ -1,10 +1,10 @@
 using BigData.API.ExceptionHandler;
 using BigData.Application;
 using BigData.Domain.Repositories;
-using BigData.Infrastructure.BackgroundServices;
 using BigData.Infrastructure.Clients;
 using BigData.Infrastructure.Persistence;
 using BigData.Infrastructure.Persistence.EFCore;
+using BigData.Infrastructure.ServiceCollection;
 using Cqrs.Abstractions;
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
