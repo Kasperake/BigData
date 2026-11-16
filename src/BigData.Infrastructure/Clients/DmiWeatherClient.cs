@@ -5,9 +5,9 @@ namespace BigData.Infrastructure.Clients;
 
 public class DmiWeatherClient(HttpClient client) : IDmiWeatherClient
 {
-    public async Task<IReadOnlyList<ObservationInput>> FetchAsync(CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<ObservationInput>> FetchAsync(string parameterId,CancellationToken cancellationToken = default)
     {
-        var response = await client.GetFromJsonAsync<DmiResponse>("collections/observation/items?parameterId=temp_dry&sortorder=observed,DESC", cancellationToken);
+        var response = await client.GetFromJsonAsync<DmiResponse>($"collections/observation/items?parameterId={parameterId}&sortorder=observed,DESC", cancellationToken);
 
         return response?.Features.Select(f => new ObservationInput(
             f.Id,

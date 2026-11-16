@@ -2,4 +2,4 @@ using Cqrs.Abstractions;
 
 namespace BigData.Application.CreateWeatherObservations;
 
-public sealed record CreateWeatherObservationsCommand : ICommand;
+public sealed record CreateWeatherObservationsCommand(string ParameterId) : ICommand;

@@ -6,9 +6,9 @@ using Microsoft.Extensions.Logging;
 
 namespace BigData.Infrastructure.BackgroundServices;
 
-public class WeatherImportWorker(
+public class DmiWeatherTempImportWorker(
     IServiceScopeFactory scopeFactory,
-    ILogger<WeatherImportWorker> logger) : BackgroundService
+    ILogger<DmiWeatherTempImportWorker> logger) : BackgroundService
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -20,7 +20,7 @@ public class WeatherImportWorker(
 
                 var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
 
-                await mediator.SendAsync(new CreateWeatherObservationsCommand(), stoppingToken);
+                await mediator.SendAsync(new CreateWeatherObservationsCommand("temp_dry"), stoppingToken);
 
                 await Task.Delay(TimeSpan.FromMinutes(5), stoppingToken);
             }
