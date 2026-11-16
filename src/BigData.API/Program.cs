@@ -29,8 +29,8 @@ builder.Services.AddDbContext<WeatherMongoDbContext>(options =>
 // Auto commit unitofwork command behavior. 
 builder.Services.AddScoped<IUnitOfWork, EfCoreUnitOfWork>();
 
-builder.Services.AddScoped<IWeatherObservationReadRepository, WeatherObservationReadRepository>();
-builder.Services.AddScoped<IWeatherObservationRepository, WeatherObservationRepository>();
+builder.Services.AddScoped<IWeatherObservationReadRepository, WeatherObservationMongoReadRepository>();
+builder.Services.AddScoped<IWeatherObservationRepository, WeatherObservationMongoRepository>();
 builder.Services.AddWorkerServices();
 
 builder.Services.AddDmiWeatherClient(builder.Configuration);
