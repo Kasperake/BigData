@@ -22,6 +22,36 @@ namespace BigData.Infrastructure.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("BigData.Domain.Entities.Station", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CountryCode")
+                        .IsRequired()
+                        .HasMaxLength(3)
+                        .HasColumnType("nvarchar(3)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("StationId")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("StationId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_Station_StationId");
+
+                    b.ToTable("Station", (string)null);
+                });
+
             modelBuilder.Entity("BigData.Domain.Entities.WeatherObservation", b =>
                 {
                     b.Property<Guid>("Id")

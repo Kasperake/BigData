@@ -13,6 +13,7 @@ public class WeatherDbContext : DbContext
     
 
     public DbSet<WeatherObservation> WeatherObservations { get; set; }
+    public DbSet<Station> Stations { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

@@ -1,4 +1,5 @@
 ﻿using BigData.Domain.Entities;
+using BigData.Infrastructure.Persistence.Configurations;
 using Microsoft.EntityFrameworkCore;
 using MongoDB.EntityFrameworkCore.Extensions;
 
@@ -17,6 +18,9 @@ public class WeatherMongoDbContext : DbContext
         base.OnModelCreating(modelBuilder);
 
         modelBuilder.Entity<WeatherObservation>().ToCollection("WeatherObservations");
-        modelBuilder.ApplyConfigurationsFromAssembly(typeof(WeatherMongoDbContext).Assembly);
+        // Stations live in SQL Server only (see WeatherDbContext).
+        modelBuilder.ApplyConfigurationsFromAssembly(
+            typeof(WeatherMongoDbContext).Assembly,
+            type => type != typeof(StationConfiguration));
     }
 }

@@ -44,6 +44,7 @@ public static class ServiceCollectionExtensions
     {
         services.AddScoped<IWeatherObservationReadRepository, WeatherObservationMongoReadRepository>();
         services.AddScoped<IWeatherObservationRepository, WeatherObservationMongoRepository>();
+        services.AddScoped<IStationRepository, StationRepository>();
 
         return services;
     }
@@ -55,6 +56,7 @@ public static class ServiceCollectionExtensions
         services.AddHostedService<DmiWeatherPressureImportWorker>();
         services.AddHostedService<DmiWeatherWindDirectionImportWorker>();
         services.AddHostedService<DmiWeatherWindSpeedImportWorker>();
+        services.AddHostedService<DmiStationImportWorker>();
         return services;
     }
 
@@ -64,6 +66,12 @@ public static class ServiceCollectionExtensions
         services.Configure<DmiWeatherClientOptions>(configuration.GetSection(DmiWeatherClientOptions.SectionName));
 
         services.AddHttpClient<IDmiWeatherClient, DmiWeatherClient>((sp, http) =>
+        {
+            var options = sp.GetRequiredService<IOptions<DmiWeatherClientOptions>>().Value;
+            http.BaseAddress = new Uri(options.BaseAddress);
+        });
+
+        services.AddHttpClient<IDmiStationClient, DmiStationClient>((sp, http) =>
         {
             var options = sp.GetRequiredService<IOptions<DmiWeatherClientOptions>>().Value;
             http.BaseAddress = new Uri(options.BaseAddress);
