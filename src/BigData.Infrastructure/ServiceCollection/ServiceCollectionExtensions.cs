@@ -55,6 +55,7 @@ public static class ServiceCollectionExtensions
         services.AddHostedService<DmiWeatherPressureImportWorker>();
         services.AddHostedService<DmiWeatherWindDirectionImportWorker>();
         services.AddHostedService<DmiWeatherWindSpeedImportWorker>();
+        services.AddHostedService<MongoDbTransformationWorker>();
         return services;
     }
 
