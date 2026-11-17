@@ -1,5 +1,4 @@
-﻿using BigData.Domain.Entities;
-using BigData.Infrastructure.Persistence.EFCore;
+﻿using BigData.Infrastructure.Persistence.EFCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -49,9 +48,8 @@ namespace BigData.Infrastructure.BackgroundServices
             await using var scope = _scopeFactory.CreateAsyncScope();
 
             var mongoDb = scope.ServiceProvider.GetRequiredService<WeatherMongoDbContext>();
-            var sqlDb = scope.ServiceProvider.GetRequiredService<WeatherDbContext>(); // Tilføj DbContext
+            var sqlDb = scope.ServiceProvider.GetRequiredService<WeatherDWDbContext>();
 
-            var page = 0;
             var insertedTotal = 0;
 
             while (!cancellationToken.IsCancellationRequested)
@@ -65,36 +63,6 @@ namespace BigData.Infrastructure.BackgroundServices
                 {
                     break;
                 }
-
-                var ids = mongoBatch.Select(x => x.Id).ToArray();
-
-                var existingSqlIds = await sqlDb.WeatherObservations
-                    .AsNoTracking()
-                    .Where(x => ids.Contains(x.Id))
-                    .Select(x => x.Id)
-                    .ToHashSetAsync(cancellationToken);
-
-                var toInsert = mongoBatch
-                    .Where(x => !existingSqlIds.Contains(x.Id))
-                    .Select(x => WeatherObservation.Create(
-                        x.Id,
-                        x.StationId,
-                        x.ParameterId,
-                        x.ObservedAtUtc,
-                        x.CreatedAtUtc,
-                        x.Value,
-                        x.Longitude,
-                        x.Latitude))
-                    .ToList();
-
-                if (toInsert.Count > 0)
-                {
-                    await sqlDb.WeatherObservations.AddRangeAsync(toInsert, cancellationToken);
-                    await sqlDb.SaveChangesAsync(cancellationToken);
-                    insertedTotal += toInsert.Count;
-                }
-
-                page++;
             }
 
             _logger.LogInformation(
