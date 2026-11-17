@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BigData.Infrastructure.Persistence.EFCore;
 
+[Obsolete("This will deprecate - Look at WeatherMongoDbContext.cs")]
 public class WeatherDbContext : DbContext
 {
     public WeatherDbContext(DbContextOptions<WeatherDbContext> options)
