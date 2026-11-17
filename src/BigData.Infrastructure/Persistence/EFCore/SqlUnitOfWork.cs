@@ -1,13 +1,11 @@
+using BigData.Infrastructure.Abstractions;
 using Cqrs.Abstractions;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace BigData.Infrastructure.Persistence.EFCore;
 
-/// <summary>
-/// Runs each command in a database transaction on the scoped <see cref="WeatherDbContext"/>. The CQRS pipeline calls
-/// it automatically: begin before the handler, save and commit after it, roll back if anything throws.
-/// </summary>
-public sealed class EfCoreUnitOfWork(WeatherDbContext dbContext) : IUnitOfWork
+[Obsolete("This will deprecate, look at MongoDbUnitOfWork.cs")]
+public sealed class SqlUnitOfWork(WeatherDbContext dbContext) : ISqlUnitOfWork
 {
     private IDbContextTransaction? _transaction;
 
