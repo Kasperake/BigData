@@ -28,15 +28,12 @@ public static class ServiceCollectionExtensions
 
     private static IServiceCollection AddPersistence(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddDbContext<WeatherDbContext>(options =>
-            options.UseSqlServer(configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("ConnectionString is missing")));
         services.AddDbContext<WeatherMongoDbContext>(options =>
             options.UseMongoDB(configuration.GetConnectionString("MongoDbConnection") ?? throw new InvalidOperationException("ConnectionString is missing")));
         services.AddDbContext<WeatherDWDbContext>(options =>
-    options.UseSqlServer(configuration.GetConnectionString("DataWarehouseConnection") ?? throw new InvalidOperationException("ConnectionString is missing")));
+    options.UseSqlServer(configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("ConnectionString is missing")));
 
         // Auto commit unitofwork command behavior. 
-        services.AddScoped<ISqlUnitOfWork, SqlUnitOfWork>();
         services.AddScoped<IMongoDbUnitOfWork, MongoDbUnitOfWork>();
         services.AddScoped<ISqlDWUnitOfWork, SqlDWUnitOfWork>();
 
@@ -59,12 +56,12 @@ public static class ServiceCollectionExtensions
 
     private static IServiceCollection AddWorkerServices(this IServiceCollection services)
     {
-        services.AddHostedService<DmiWeatherTempImportWorker>();
-        services.AddHostedService<DmiWeatherPressureImportWorker>();
-        services.AddHostedService<DmiWeatherWindDirectionImportWorker>();
-        services.AddHostedService<DmiWeatherWindSpeedImportWorker>();
+        //services.AddHostedService<DmiWeatherTempImportWorker>();
+        //services.AddHostedService<DmiWeatherPressureImportWorker>();
+        //services.AddHostedService<DmiWeatherWindDirectionImportWorker>();
+        //services.AddHostedService<DmiWeatherWindSpeedImportWorker>();
         services.AddHostedService<MongoDbTransformationWorker>();
-        services.AddHostedService<DmiStationImportWorker>();
+        //services.AddHostedService<DmiStationImportWorker>();
         return services;
     }
 

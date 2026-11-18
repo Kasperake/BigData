@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BigData.Infrastructure.Persistence;
 
-public class StationRepository(WeatherDbContext dbContext) : IStationRepository
+public class StationRepository(WeatherDWDbContext dbContext) : IStationRepository
 {
     public async Task<List<Station>> GetByStationIdsAsync(IReadOnlyCollection<string> stationIds, CancellationToken cancellationToken)
     {

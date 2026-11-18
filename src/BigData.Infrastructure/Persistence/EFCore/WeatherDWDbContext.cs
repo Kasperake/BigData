@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BigData.Infrastructure.Persistence.EFCore;
 
-internal class WeatherDWDbContext : DbContext
+public class WeatherDWDbContext : DbContext
 {
     public WeatherDWDbContext(DbContextOptions<WeatherDWDbContext> options)
     : base(options)
@@ -12,10 +12,12 @@ internal class WeatherDWDbContext : DbContext
     }
 
     public DbSet<StormMeasurement> StormMeasurements { get; set; } = null!;
+    public DbSet<Station> Stations { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
         modelBuilder.ApplyConfiguration(new StormMeasurementConfiguration());
+        modelBuilder.ApplyConfiguration(new StationConfiguration());
     }
 }

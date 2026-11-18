@@ -44,36 +44,6 @@ namespace BigData.Infrastructure.Migrations.WeatherDWDb
                     b.ToTable("Parameters");
                 });
 
-            modelBuilder.Entity("BigData.Domain.Entities.Station", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("CountryCode")
-                        .IsRequired()
-                        .HasMaxLength(3)
-                        .HasColumnType("nvarchar(3)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<string>("StationId")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("StationId")
-                        .IsUnique()
-                        .HasDatabaseName("IX_Station_StationId");
-
-                    b.ToTable("Station", (string)null);
-                });
-
             modelBuilder.Entity("BigData.Domain.Entities.StormMeasurement", b =>
                 {
                     b.Property<Guid>("Id")
@@ -90,46 +60,6 @@ namespace BigData.Infrastructure.Migrations.WeatherDWDb
                     b.HasKey("Id");
 
                     b.ToTable("StormMeasurements");
-                });
-
-            modelBuilder.Entity("BigData.Domain.Entities.WeatherObservation", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedAtUtc")
-                        .HasColumnType("DATETIME2(3)");
-
-                    b.Property<double?>("Latitude")
-                        .HasColumnType("float");
-
-                    b.Property<double?>("Longitude")
-                        .HasColumnType("float");
-
-                    b.Property<DateTime>("ObservedAtUtc")
-                        .HasColumnType("DATETIME2(3)");
-
-                    b.Property<string>("ParameterId")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("StationId")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<double>("Value")
-                        .HasColumnType("float");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CreatedAtUtc")
-                        .IsDescending()
-                        .HasDatabaseName("IX_WeatherObservation_CreatedAtUtc");
-
-                    b.ToTable("WeatherObservation", (string)null);
                 });
 
             modelBuilder.Entity("BigData.Domain.Entities.Parameters", b =>
