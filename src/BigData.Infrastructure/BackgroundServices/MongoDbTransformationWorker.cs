@@ -1,72 +1,40 @@
-﻿using BigData.Infrastructure.Persistence.EFCore;
-using Microsoft.EntityFrameworkCore;
+﻿using BigData.Application.TransformMongoToSql;
+using Cqrs.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace BigData.Infrastructure.BackgroundServices
 {
-    public class MongoDbTransformationWorker : BackgroundService
+    public class MongoDbTransformationWorker(
+        IServiceScopeFactory scopeFactory,
+        ILogger<MongoDbTransformationWorker> logger) : BackgroundService
     {
-        private readonly IServiceScopeFactory _scopeFactory;
-        private readonly ILogger<MongoDbTransformationWorker> _logger;
-
-        public MongoDbTransformationWorker(IServiceScopeFactory scopeFactory, ILogger<MongoDbTransformationWorker> logger)
-        {
-            _scopeFactory = scopeFactory;
-            _logger = logger;
-        }
-
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            _logger.LogInformation("MongoDbTransformationWorker started.");
+            logger.LogInformation("MongoDbTransformationWorker started.");
 
-            while (!stoppingToken.IsCancellationRequested)
+            try
             {
-                try
+                while (!stoppingToken.IsCancellationRequested)
                 {
-                    await TransformMongoToSqlAsync(stoppingToken);
-                }
-                catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
-                {
-                    _logger.LogWarning("MongoDbTransformationWorker canceled.");
-                    break;
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Mongo to SQL transformation failed.");
-                }
+                    await using var scope = scopeFactory.CreateAsyncScope();
+                    var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
 
-                await Task.Delay(TimeSpan.FromMinutes(5), stoppingToken);
-            }
-
-            _logger.LogInformation("MongoDbTransformationWorker stopped.");
-        }
-
-        private async Task TransformMongoToSqlAsync(CancellationToken cancellationToken)
-        {
-            await using var scope = _scopeFactory.CreateAsyncScope();
-
-            var mongoDb = scope.ServiceProvider.GetRequiredService<WeatherMongoDbContext>();
-            var sqlDb = scope.ServiceProvider.GetRequiredService<WeatherDWDbContext>();
-
-            var insertedTotal = 0;
-
-            while (!cancellationToken.IsCancellationRequested)
-            {
-                var mongoBatch = await mongoDb.WeatherObservations
-                    .AsNoTracking()
-                    .OrderBy(x => x.CreatedAtUtc)
-                    .ToListAsync(cancellationToken);
-
-                if (mongoBatch.Count == 0)
-                {
-                    break;
+                    await mediator.SendAsync(new TransformMongoToSqlCommand(), stoppingToken);
+                    await Task.Delay(TimeSpan.FromMinutes(5), stoppingToken);
                 }
             }
+            catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+            {
+                logger.LogWarning("MongoDbTransformationWorker canceled.");
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Mongo to SQL transformation failed.");
+            }
 
-            _logger.LogInformation(
-                "Mongo to SQL sync completed. Inserted rows: {InsertedTotal}", insertedTotal);
+            logger.LogInformation("MongoDbTransformationWorker stopped.");
         }
     }
 }
