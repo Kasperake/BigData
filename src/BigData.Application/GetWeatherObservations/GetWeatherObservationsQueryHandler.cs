@@ -1,4 +1,4 @@
-﻿using BigData.Infrastructure.Persistence;
+﻿using BigData.Application.Repositories;
 using Cqrs.Abstractions;
 
 namespace BigData.Application.GetWeatherObservations;
@@ -8,7 +8,7 @@ public class GetWeatherObservationsQueryHandler(IWeatherObservationReadRepositor
     public async Task<GetWeatherObservationsResponse> HandleAsync(GetWeatherObservationsQuery query, CancellationToken cancellationToken)
     {
         var totalCount = await readRepository.CountAsync(cancellationToken);
-        var items = await readRepository.GetAllAsync(query.Page, query.PageSize, cancellationToken);
+        var items = await readRepository.GetPagedAsync(query.Page, query.PageSize, cancellationToken);
 
         return new GetWeatherObservationsResponse
         {
