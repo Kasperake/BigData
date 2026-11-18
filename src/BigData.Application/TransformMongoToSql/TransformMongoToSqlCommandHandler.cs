@@ -25,11 +25,10 @@ public sealed class TransformMongoToSqlCommandHandler(IWeatherObservationReadRep
             var observation = StormMeasurement.Create(
                 o.Id,
                 o.StationId,
-                ParameterType.Temperature,
                 o.ObservedAtUtc,
-                new List<Parameters>
+                new List<Parameter>
                 {
-                    Parameters.Create(Guid.NewGuid(), ParameterType.Temperature, o.Value)
+                    Parameter.Create(Guid.CreateVersion7(), o.ParameterId, o.Value)
                 });
             await repository.Add(observation, cancellationToken);
         }

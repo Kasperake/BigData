@@ -38,6 +38,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ISqlDWUnitOfWork, SqlDWUnitOfWork>();
 
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<IMongoDbUnitOfWork>());
+        services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<ISqlDWUnitOfWork>());
         //services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<ISqlUnitOfWork>()); // This is only necessary for switching back to MSSQL. 
         return services;
     }
@@ -56,12 +57,12 @@ public static class ServiceCollectionExtensions
 
     private static IServiceCollection AddWorkerServices(this IServiceCollection services)
     {
-        //services.AddHostedService<DmiWeatherTempImportWorker>();
-        //services.AddHostedService<DmiWeatherPressureImportWorker>();
-        //services.AddHostedService<DmiWeatherWindDirectionImportWorker>();
-        //services.AddHostedService<DmiWeatherWindSpeedImportWorker>();
+        services.AddHostedService<DmiWeatherTempImportWorker>();
+        services.AddHostedService<DmiWeatherPressureImportWorker>();
+        services.AddHostedService<DmiWeatherWindDirectionImportWorker>();
+        services.AddHostedService<DmiWeatherWindSpeedImportWorker>();
         services.AddHostedService<MongoDbTransformationWorker>();
-        //services.AddHostedService<DmiStationImportWorker>();
+        services.AddHostedService<DmiStationImportWorker>();
         return services;
     }
 

@@ -22,7 +22,7 @@ namespace BigData.Infrastructure.Migrations.WeatherDWDb
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("BigData.Domain.Entities.Parameters", b =>
+            modelBuilder.Entity("BigData.Domain.Entities.Parameter", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -41,7 +41,7 @@ namespace BigData.Infrastructure.Migrations.WeatherDWDb
 
                     b.HasIndex("StormMeasurementId");
 
-                    b.ToTable("Parameters");
+                    b.ToTable("Parameter");
                 });
 
             modelBuilder.Entity("BigData.Domain.Entities.Station", b =>
@@ -92,7 +92,7 @@ namespace BigData.Infrastructure.Migrations.WeatherDWDb
                     b.ToTable("StormMeasurements");
                 });
 
-            modelBuilder.Entity("BigData.Domain.Entities.Parameters", b =>
+            modelBuilder.Entity("BigData.Domain.Entities.Parameter", b =>
                 {
                     b.HasOne("BigData.Domain.Entities.StormMeasurement", null)
                         .WithMany("Parameters")

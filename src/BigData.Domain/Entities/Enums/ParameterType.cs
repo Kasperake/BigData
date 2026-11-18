@@ -4,5 +4,6 @@ public enum ParameterType
 {
     Temperature,
     WindDirection,
-    WindSpeed
+    WindSpeed,
+    Pressure
 }

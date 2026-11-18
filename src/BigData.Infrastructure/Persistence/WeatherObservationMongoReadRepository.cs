@@ -21,7 +21,6 @@ namespace BigData.Infrastructure.Persistence
                     Longitude = x.Longitude,
                     Latitude = x.Latitude
                 })
-                .OrderByDescending(x => x.ObservedAtUtc)
                 .ToListAsync(cancellationToken);
         }
         public async Task<HashSet<Guid>> GetExistingIdsAsync(IReadOnlyCollection<Guid> ids, CancellationToken cancellationToken)
