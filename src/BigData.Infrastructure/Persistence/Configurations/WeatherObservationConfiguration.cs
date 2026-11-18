@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace BigData.Infrastructure.Persistence.Configurations;
 
-[Obsolete("This will deprecate - We are initializing MongoDb instead.")]
 internal class WeatherObservationConfiguration : IEntityTypeConfiguration<WeatherObservation>
 {
     public void Configure(EntityTypeBuilder<WeatherObservation> builder)

@@ -9,7 +9,7 @@ namespace BigData.Domain.Entities
 
         }
         public Guid Id { get; private set; }
-        public string StationId { get; private set; } = null!;
+        public string? StationId { get; private set; }
         public DateTime ObservedAtUtc { get; private set; }
         public ICollection<Parameter> Parameters { get; private set; } = [];
 
