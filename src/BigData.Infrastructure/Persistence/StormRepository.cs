@@ -6,7 +6,7 @@ namespace BigData.Infrastructure.Persistence;
 
 internal class StormRepository(WeatherDWDbContext dbContext) : IStormRepository
 {
-    public Task Add(StormMeasurement entity)
+    public Task Add(StormMeasurement entity, CancellationToken cancellationToken = default)
     {
         dbContext.Add(entity);
         return Task.CompletedTask;

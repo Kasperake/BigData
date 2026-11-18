@@ -1,4 +1,5 @@
 ﻿using BigData.Domain.Entities;
+using BigData.Infrastructure.Persistence.Configurations;
 using Microsoft.EntityFrameworkCore;
 
 namespace BigData.Infrastructure.Persistence.EFCore;
@@ -15,6 +16,6 @@ internal class WeatherDWDbContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-        modelBuilder.ApplyConfigurationsFromAssembly(typeof(WeatherDWDbContext).Assembly);
+        modelBuilder.ApplyConfiguration(new StormMeasurementConfiguration());
     }
 }

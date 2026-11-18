@@ -1,4 +1,5 @@
 ﻿using BigData.Domain.Entities;
+using BigData.Infrastructure.Persistence.Configurations;
 using Microsoft.EntityFrameworkCore;
 
 namespace BigData.Infrastructure.Persistence.EFCore;
@@ -10,7 +11,7 @@ public class WeatherDbContext : DbContext
         : base(options)
     {
     }
-    
+
 
     public DbSet<WeatherObservation> WeatherObservations { get; set; }
     public DbSet<Station> Stations { get; set; }
@@ -19,6 +20,7 @@ public class WeatherDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
-        modelBuilder.ApplyConfigurationsFromAssembly(typeof(WeatherDbContext).Assembly);
+        modelBuilder.ApplyConfiguration(new WeatherObservationConfiguration());
+        modelBuilder.ApplyConfiguration(new StationConfiguration());
     }
 }

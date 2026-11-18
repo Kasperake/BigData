@@ -1,8 +1,6 @@
-﻿using BigData.Application.GetWeatherObservations;
-using BigData.Application.Repositories;
+﻿using BigData.Application.Repositories;
 using BigData.Domain.Entities;
 using BigData.Domain.Entities.Enums;
-using BigData.Domain.Repositories;
 using Cqrs.Abstractions;
 
 namespace BigData.Application.TransformMongoToSql;
@@ -14,17 +12,26 @@ public sealed class TransformMongoToSqlCommandHandler(IWeatherObservationReadRep
         var items = await datalakeReadRepository
             .GetAllAsync(cancellationToken);
 
-        var entities = items.Select(x => StormMeasurement.Create(
-            Guid.NewGuid(),
-            x.StationId,
-            ParameterType.Temperature,
-            x.ObservedAtUtc,
-            new List<Parameters>
+        var existingIds = await stormReadRepository.GetExistingIdsAsync(
+            items.Select(x => x.Id).Distinct().ToList(),
+            cancellationToken);
+
+        foreach (var o in items.DistinctBy(x => x.Id))
+        {
+            if (existingIds.Contains(o.Id))
             {
-                Parameters.Create(Guid.NewGuid(), ParameterType.Temperature, x.Value)
-            }));
-
-
-
+                continue;
+            }
+            var observation = StormMeasurement.Create(
+                o.Id,
+                o.StationId,
+                ParameterType.Temperature,
+                o.ObservedAtUtc,
+                new List<Parameters>
+                {
+                    Parameters.Create(Guid.NewGuid(), ParameterType.Temperature, o.Value)
+                });
+            await repository.Add(observation, cancellationToken);
+        }
     }
 }

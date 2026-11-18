@@ -4,5 +4,5 @@ namespace BigData.Application.Repositories;
 
 public interface IStormRepository
 {
-    Task Add(StormMeasurement entity);
+    Task Add(StormMeasurement entity, CancellationToken cancellationToken = default);
 }
