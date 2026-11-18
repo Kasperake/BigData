@@ -1,4 +1,5 @@
 ﻿using BigData.Application.GetWeatherObservations;
+using BigData.Application.Repositories;
 using BigData.Infrastructure.Persistence.EFCore;
 using Microsoft.EntityFrameworkCore;
 
@@ -6,6 +7,23 @@ namespace BigData.Infrastructure.Persistence
 {
     public class WeatherObservationMongoReadRepository(WeatherMongoDbContext dbContext) : IWeatherObservationReadRepository
     {
+        public async Task<List<GetWeatherObservationsItem>> GetAllAsync(CancellationToken cancellationToken = default)
+        {
+            return await dbContext.WeatherObservations
+                .Select(x => new GetWeatherObservationsItem
+                {
+                    Id = x.Id,
+                    StationId = x.StationId,
+                    ParameterId = x.ParameterId,
+                    ObservedAtUtc = x.ObservedAtUtc,
+                    CreatedAtUtc = x.CreatedAtUtc,
+                    Value = x.Value,
+                    Longitude = x.Longitude,
+                    Latitude = x.Latitude
+                })
+                .OrderByDescending(x => x.ObservedAtUtc)
+                .ToListAsync(cancellationToken);
+        }
         public async Task<HashSet<Guid>> GetExistingIdsAsync(IReadOnlyCollection<Guid> ids, CancellationToken cancellationToken)
         {
             if (ids.Count == 0)
@@ -19,7 +37,7 @@ namespace BigData.Infrastructure.Persistence
                 .Select(o => o.Id)
                 .ToHashSetAsync(cancellationToken);
         }
-        public async Task<List<GetWeatherObservationsItem>> GetAllAsync(int page, int pageSize, CancellationToken cancellationToken = default)
+        public async Task<List<GetWeatherObservationsItem>> GetPagedAsync(int page, int pageSize, CancellationToken cancellationToken = default)
         {
             return await dbContext.WeatherObservations
                 .Skip((page - 1) * pageSize)
