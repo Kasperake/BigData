@@ -9,11 +9,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace BigData.Infrastructure.Migrations
+namespace BigData.Infrastructure.Migrations.WeatherDWDb
 {
-    [DbContext(typeof(WeatherDbContext))]
-    [Migration("20261117134851_AddStations")]
-    partial class AddStations
+    [DbContext(typeof(WeatherDWDbContext))]
+    [Migration("20261118095647_StormMeasurement")]
+    partial class StormMeasurement
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,6 +24,28 @@ namespace BigData.Infrastructure.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("BigData.Domain.Entities.Parameters", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("StormMeasurementId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.Property<double>("Value")
+                        .HasColumnType("float");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("StormMeasurementId");
+
+                    b.ToTable("Parameters");
+                });
 
             modelBuilder.Entity("BigData.Domain.Entities.Station", b =>
                 {
@@ -53,6 +75,24 @@ namespace BigData.Infrastructure.Migrations
                         .HasDatabaseName("IX_Station_StationId");
 
                     b.ToTable("Station", (string)null);
+                });
+
+            modelBuilder.Entity("BigData.Domain.Entities.StormMeasurement", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("ObservedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("StationId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("StormMeasurements");
                 });
 
             modelBuilder.Entity("BigData.Domain.Entities.WeatherObservation", b =>
@@ -93,6 +133,20 @@ namespace BigData.Infrastructure.Migrations
                         .HasDatabaseName("IX_WeatherObservation_CreatedAtUtc");
 
                     b.ToTable("WeatherObservation", (string)null);
+                });
+
+            modelBuilder.Entity("BigData.Domain.Entities.Parameters", b =>
+                {
+                    b.HasOne("BigData.Domain.Entities.StormMeasurement", null)
+                        .WithMany("Parameters")
+                        .HasForeignKey("StormMeasurementId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("BigData.Domain.Entities.StormMeasurement", b =>
+                {
+                    b.Navigation("Parameters");
                 });
 #pragma warning restore 612, 618
         }

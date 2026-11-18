@@ -3,10 +3,10 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace BigData.Infrastructure.Migrations
+namespace BigData.Infrastructure.Migrations.WeatherDWDb
 {
     /// <inheritdoc />
-    public partial class AddStations : Migration
+    public partial class AddedStationAsDbSet : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -37,6 +37,9 @@ namespace BigData.Infrastructure.Migrations
         {
             migrationBuilder.DropTable(
                 name: "Station");
+
+            
         }
     }
+
 }

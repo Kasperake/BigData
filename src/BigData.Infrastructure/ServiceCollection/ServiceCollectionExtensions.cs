@@ -1,4 +1,5 @@
 ﻿using BigData.Application.Clients;
+using BigData.Application.Repositories;
 using BigData.Domain.Repositories;
 using BigData.Infrastructure.Abstractions;
 using BigData.Infrastructure.BackgroundServices;
@@ -27,15 +28,17 @@ public static class ServiceCollectionExtensions
 
     private static IServiceCollection AddPersistence(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddDbContext<WeatherDbContext>(options =>
-            options.UseSqlServer(configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("ConnectionString is missing")));
         services.AddDbContext<WeatherMongoDbContext>(options =>
             options.UseMongoDB(configuration.GetConnectionString("MongoDbConnection") ?? throw new InvalidOperationException("ConnectionString is missing")));
+        services.AddDbContext<WeatherDWDbContext>(options =>
+    options.UseSqlServer(configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("ConnectionString is missing")));
 
         // Auto commit unitofwork command behavior. 
-        services.AddScoped<ISqlUnitOfWork, SqlUnitOfWork>();
         services.AddScoped<IMongoDbUnitOfWork, MongoDbUnitOfWork>();
+        services.AddScoped<ISqlDWUnitOfWork, SqlDWUnitOfWork>();
+
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<IMongoDbUnitOfWork>());
+        services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<ISqlDWUnitOfWork>());
         //services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<ISqlUnitOfWork>()); // This is only necessary for switching back to MSSQL. 
         return services;
     }
@@ -45,6 +48,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IWeatherObservationReadRepository, WeatherObservationMongoReadRepository>();
         services.AddScoped<IWeatherObservationRepository, WeatherObservationMongoRepository>();
         services.AddScoped<IStationRepository, StationRepository>();
+        services.AddScoped<IStormRepository, StormRepository>();
+        services.AddScoped<IStormReadRepository, StormReadRepository>();
 
         return services;
     }
@@ -56,6 +61,7 @@ public static class ServiceCollectionExtensions
         services.AddHostedService<DmiWeatherPressureImportWorker>();
         services.AddHostedService<DmiWeatherWindDirectionImportWorker>();
         services.AddHostedService<DmiWeatherWindSpeedImportWorker>();
+        services.AddHostedService<MongoDbTransformationWorker>();
         services.AddHostedService<DmiStationImportWorker>();
         return services;
     }

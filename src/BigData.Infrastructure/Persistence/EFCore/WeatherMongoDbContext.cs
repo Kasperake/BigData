@@ -19,8 +19,6 @@ public class WeatherMongoDbContext : DbContext
 
         modelBuilder.Entity<WeatherObservation>().ToCollection("WeatherObservations");
         // Stations live in SQL Server only (see WeatherDbContext).
-        modelBuilder.ApplyConfigurationsFromAssembly(
-            typeof(WeatherMongoDbContext).Assembly,
-            type => type != typeof(StationConfiguration));
+        modelBuilder.ApplyConfiguration(new WeatherObservationConfiguration());
     }
 }

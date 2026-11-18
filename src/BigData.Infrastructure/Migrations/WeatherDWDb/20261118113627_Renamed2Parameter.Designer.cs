@@ -4,16 +4,19 @@ using BigData.Infrastructure.Persistence.EFCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace BigData.Infrastructure.Migrations
+namespace BigData.Infrastructure.Migrations.WeatherDWDb
 {
-    [DbContext(typeof(WeatherDbContext))]
-    partial class WeatherDbContextModelSnapshot : ModelSnapshot
+    [DbContext(typeof(WeatherDWDbContext))]
+    [Migration("20261118113627_Renamed2Parameter")]
+    partial class Renamed2Parameter
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,6 +24,28 @@ namespace BigData.Infrastructure.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("BigData.Domain.Entities.Parameter", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("StormMeasurementId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.Property<double>("Value")
+                        .HasColumnType("float");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("StormMeasurementId");
+
+                    b.ToTable("Parameter");
+                });
 
             modelBuilder.Entity("BigData.Domain.Entities.Station", b =>
                 {
@@ -52,44 +77,36 @@ namespace BigData.Infrastructure.Migrations
                     b.ToTable("Station", (string)null);
                 });
 
-            modelBuilder.Entity("BigData.Domain.Entities.WeatherObservation", b =>
+            modelBuilder.Entity("BigData.Domain.Entities.StormMeasurement", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("CreatedAtUtc")
-                        .HasColumnType("DATETIME2(3)");
-
-                    b.Property<double?>("Latitude")
-                        .HasColumnType("float");
-
-                    b.Property<double?>("Longitude")
-                        .HasColumnType("float");
-
                     b.Property<DateTime>("ObservedAtUtc")
-                        .HasColumnType("DATETIME2(3)");
-
-                    b.Property<string>("ParameterId")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("StationId")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<double>("Value")
-                        .HasColumnType("float");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CreatedAtUtc")
-                        .IsDescending()
-                        .HasDatabaseName("IX_WeatherObservation_CreatedAtUtc");
+                    b.ToTable("StormMeasurements");
+                });
 
-                    b.ToTable("WeatherObservation", (string)null);
+            modelBuilder.Entity("BigData.Domain.Entities.Parameter", b =>
+                {
+                    b.HasOne("BigData.Domain.Entities.StormMeasurement", null)
+                        .WithMany("Parameters")
+                        .HasForeignKey("StormMeasurementId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("BigData.Domain.Entities.StormMeasurement", b =>
+                {
+                    b.Navigation("Parameters");
                 });
 #pragma warning restore 612, 618
         }

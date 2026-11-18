@@ -2,4 +2,4 @@
 
 namespace BigData.Infrastructure.Abstractions;
 
-public interface ISqlUnitOfWork : IUnitOfWork;
+public interface ISqlDWUnitOfWork : IUnitOfWork;
