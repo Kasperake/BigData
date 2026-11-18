@@ -1,4 +1,5 @@
 ﻿using BigData.Application.Clients;
+using BigData.Application.Repositories;
 using BigData.Application.TransformMongoToSql;
 using BigData.Domain.Repositories;
 using BigData.Infrastructure.Abstractions;
@@ -35,8 +36,6 @@ public static class ServiceCollectionExtensions
         services.AddDbContext<WeatherDWDbContext>(options =>
     options.UseSqlServer(configuration.GetConnectionString("DataWarehouseConnection") ?? throw new InvalidOperationException("ConnectionString is missing")));
 
-        services.AddScoped<IMongoToSqlTransformer, MongoToSqlTransformer>();
-
         // Auto commit unitofwork command behavior. 
         services.AddScoped<ISqlUnitOfWork, SqlUnitOfWork>();
         services.AddScoped<IMongoDbUnitOfWork, MongoDbUnitOfWork>();
@@ -50,6 +49,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IWeatherObservationReadRepository, WeatherObservationMongoReadRepository>();
         services.AddScoped<IWeatherObservationRepository, WeatherObservationMongoRepository>();
         services.AddScoped<IStationRepository, StationRepository>();
+        services.AddScoped<IStormRepository, StormRepository>();
+        services.AddScoped<IStormReadRepository, StormReadRepository>();    
 
         return services;
     }

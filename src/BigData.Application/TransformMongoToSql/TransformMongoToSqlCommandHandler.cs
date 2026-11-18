@@ -1,17 +1,15 @@
-﻿using BigData.Application.GetWeatherObservations;
-using BigData.Application.Repositories;
+﻿using BigData.Application.Repositories;
 using BigData.Domain.Entities;
 using BigData.Domain.Entities.Enums;
-using BigData.Domain.Repositories;
 using Cqrs.Abstractions;
 
 namespace BigData.Application.TransformMongoToSql;
 
-public sealed class TransformMongoToSqlCommandHandler(IWeatherObservationReadRepository readRepository, IWeatherObservationRepository repository) : ICommandHandler<TransformMongoToSqlCommand>
+public sealed class TransformMongoToSqlCommandHandler(IWeatherObservationReadRepository datalakeReadRepository, IStormReadRepository stormReadRepository, IStormRepository repository) : ICommandHandler<TransformMongoToSqlCommand>
 {
     public async Task HandleAsync(TransformMongoToSqlCommand command, CancellationToken cancellationToken)
     {
-        var items = await readRepository
+        var items = await datalakeReadRepository
             .GetAllAsync(cancellationToken);
 
         var entities = items.Select(x => StormMeasurement.Create(
