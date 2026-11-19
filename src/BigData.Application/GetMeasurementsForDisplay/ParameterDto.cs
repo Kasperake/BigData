@@ -1,8 +1,7 @@
-﻿namespace BigData.Application.GetMeasurementsForDisplay
+﻿namespace BigData.Application.GetMeasurementsForDisplay;
+
+public sealed record ParameterDto
 {
-    public class ParameterDto
-    {
-        public string Type { get; set; }
-        public double Value { get; set; }
-    }
+    public string Type { get; set; }
+    public double Value { get; set; }
 }

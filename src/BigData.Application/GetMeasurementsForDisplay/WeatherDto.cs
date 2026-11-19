@@ -1,10 +1,9 @@
-﻿namespace BigData.Application.GetMeasurementsForDisplay
+﻿namespace BigData.Application.GetMeasurementsForDisplay;
+
+public sealed record WeatherDto
 {
-    public class WeatherDto
-    {
-        public string? StationId { get; set; }
-        public string StationName { get; set; }
-        public DateTime ObservedAtUtc { get; set; }
-        public ICollection<ParameterDto> Parameters { get; set; }
-    }
+    public string? StationId { get; set; }
+    public string StationName { get; set; }
+    public DateTime ObservedAtUtc { get; set; }
+    public ICollection<ParameterDto> Parameters { get; set; }
 }

@@ -10,7 +10,7 @@ namespace BigData.API.Controllers
     [ApiController]
     public class WeatherController(IMediator mediator) : ControllerBase
     {
-        [HttpGet]
+        [HttpGet("GetForDisplay")]
         public async Task<ActionResult<GetMeasurementsForDisplayResponse>> GetAllForDisplayAsync(CancellationToken cancellationToken = default)
         {
             return await mediator.QueryAsync(new GetMeasurementsForDisplayQuery(), cancellationToken);

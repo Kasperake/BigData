@@ -1,4 +1,4 @@
-﻿namespace BigData.UI.Clients.Models
+﻿namespace BigData.UI.Clients
 {
     public class WeatherApiOptions
     {

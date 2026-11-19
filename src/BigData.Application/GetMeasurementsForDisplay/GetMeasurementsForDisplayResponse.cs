@@ -1,8 +1,7 @@
-﻿namespace BigData.Application.GetMeasurementsForDisplay
+﻿namespace BigData.Application.GetMeasurementsForDisplay;
+
+public sealed record GetMeasurementsForDisplayResponse
 {
-    public sealed record GetMeasurementsForDisplayResponse
-    {
-        public List<WeatherDto> Items { get; init; } = [];
-    }
+    public List<WeatherDto> Items { get; init; } = [];
 }
 
