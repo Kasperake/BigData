@@ -1,3 +1,4 @@
+using BigData.Application.Abstractions;
 using BigData.Application.Clients;
 using BigData.Application.Repositories;
 using BigData.Domain.Entities;
@@ -9,7 +10,8 @@ namespace BigData.Application.CreateWeatherObservations;
 public class CreateWeatherObservationsCommandHandler(
     IDmiWeatherClient client,
     IWeatherObservationRepository repository,
-    IWeatherObservationReadRepository readRepository) : ICommandHandler<CreateWeatherObservationsCommand>
+    IWeatherObservationReadRepository readRepository,
+    IMongoUnitOfWork unitOfWork) : ICommandHandler<CreateWeatherObservationsCommand>
 {
 
     public async Task HandleAsync(CreateWeatherObservationsCommand command, CancellationToken cancellationToken)
@@ -39,5 +41,7 @@ public class CreateWeatherObservationsCommandHandler(
 
             await repository.Add(observation, cancellationToken);
         }
+
+        await unitOfWork.SaveChangesAsync(cancellationToken);
     }
 }

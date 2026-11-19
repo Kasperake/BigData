@@ -1,11 +1,12 @@
-﻿using BigData.Application.Repositories;
+﻿using BigData.Application.Abstractions;
+using BigData.Application.Repositories;
 using BigData.Domain.Entities;
 using BigData.Domain.Entities.Enums;
 using Cqrs.Abstractions;
 
 namespace BigData.Application.TransformMongoToSql;
 
-public sealed class TransformMongoToSqlCommandHandler(IWeatherObservationReadRepository datalakeReadRepository, IStormReadRepository stormReadRepository, IStormRepository repository) : ICommandHandler<TransformMongoToSqlCommand>
+public sealed class TransformMongoToSqlCommandHandler(IWeatherObservationReadRepository datalakeReadRepository, IStormReadRepository stormReadRepository, IStormRepository repository, ISqlUnitOfWork unitOfWork) : ICommandHandler<TransformMongoToSqlCommand>
 {
     public async Task HandleAsync(TransformMongoToSqlCommand command, CancellationToken cancellationToken)
     {
@@ -32,5 +33,7 @@ public sealed class TransformMongoToSqlCommandHandler(IWeatherObservationReadRep
                 });
             await repository.Add(observation, cancellationToken);
         }
+
+        await unitOfWork.SaveChangesAsync(cancellationToken);
     }
 }

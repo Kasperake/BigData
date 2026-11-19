@@ -1,3 +1,4 @@
+using BigData.Application.Abstractions;
 using BigData.Application.Clients;
 using BigData.Domain.Entities;
 using BigData.Domain.Repositories;
@@ -7,7 +8,8 @@ namespace BigData.Application.SyncStations;
 
 public class SyncStationsCommandHandler(
     IDmiStationClient client,
-    IStationRepository repository) : ICommandHandler<SyncStationsCommand>
+    IStationRepository repository,
+    ISqlUnitOfWork unitOfWork) : ICommandHandler<SyncStationsCommand>
 {
     public async Task HandleAsync(SyncStationsCommand command, CancellationToken cancellationToken)
     {
@@ -36,6 +38,6 @@ public class SyncStationsCommandHandler(
             await repository.Add(Station.Create(s.Id, s.StationId, s.CountryCode, s.Name), cancellationToken);
         }
 
-        await repository.SaveChangesAsync(cancellationToken);
+        await unitOfWork.SaveChangesAsync(cancellationToken);
     }
 }
