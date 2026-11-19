@@ -1,6 +1,5 @@
 namespace BigData.UI.Components.Pages.Features;
 
-
 /// <param name="Type">Det navn API'en sender</param>
 /// <param name="Label">Det navn brugeren læser</param>
 /// <param name="Unit">Den unit der bliver angivet i vores chart</param>
