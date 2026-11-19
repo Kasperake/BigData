@@ -19,6 +19,7 @@ public sealed record ParameterProfile(
     double? SuggestedMax = null,
     bool MarkersOnly = false)
 {
+    // Vores forskellige parameterprofiler, som vi kan bruge til at filtrere målingerne.
     public static readonly ParameterProfile Temperature = new("Temperature", "Temperature", "°C");
     public static readonly ParameterProfile WindSpeed = new("WindSpeed", "Wind speed", "m/s", StartAtZero: true);
     public static readonly ParameterProfile WindDirection = new("WindDirection", "Wind direction", "°", "0", StartAtZero: true, SuggestedMax: 360, MarkersOnly: true);

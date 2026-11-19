@@ -34,6 +34,8 @@ namespace BigData.UI.Components.Pages
         {
             try
             {
+                // Vi henter vores data vha WeatherClients metode "GetForDisplayAsync".
+                // Den returnerer et GetMeasurementsForDisplayResponse objekt, som indeholder en liste af WeatherDto objekter.
                 var response = await WeatherClient.GetForDisplayAsync();
                 _items = response.Items;
             }
@@ -46,6 +48,7 @@ namespace BigData.UI.Components.Pages
                 _loading = false;
             }
 
+            // I vores _stations liste, grupperer vi målingerne efter StationId og opretter en StationOption for hver gruppe.
             _stations = _items
                 .GroupBy(i => i.StationId ?? "unknown")
                 .Select(g =>
@@ -58,8 +61,10 @@ namespace BigData.UI.Components.Pages
                 .OrderBy(s => s.Label)
                 .ToList();
 
+            // Vi opretter en liste af unikke lande, som vi kan bruge til at filtrere stationerne.
             _countries = _stations.Select(s => s.Country).Distinct().OrderBy(c => c).ToList();
 
+            // Vi opretter en liste af unikke parameterprofiler, som vi kan bruge til at filtrere målingerne.
             _parameters = _items
                 .SelectMany(i => i.Parameters)
                 .Select(p => p.Type)
@@ -103,7 +108,7 @@ namespace BigData.UI.Components.Pages
                 .GroupBy(i => i.StationId ?? "unknown")
                 .Select(g =>
                 {
-                    // Målinger observeret på samme tid, bliver grupperet ind på samme linje.
+                    // Målinger observeret på samme tidspunkt (ObservedAtUtc), bliver grupperet ind på samme linje.
                     var measurements = g
                         .GroupBy(i => i.ObservedAtUtc)
                         .Select(t => t.First() with
@@ -126,6 +131,8 @@ namespace BigData.UI.Components.Pages
                 .ToList();
         }
 
+        // Søger i row.Measurements efter første måling, som indeholder en parameter med samme type som profile.Type (case-insensitive).
+        // Hvis der findes en value, kalder den FormatValue, og ellers returnerer den "–".
         private static string FormatLatestValue(StationRow row, ParameterProfile profile)
         {
             var latest = row.Measurements.FirstOrDefault(m =>
@@ -136,6 +143,7 @@ namespace BigData.UI.Components.Pages
         private string StationLabel(string? id) =>
             _stations.FirstOrDefault(s => s.Id == id)?.Label ?? id ?? string.Empty;
 
+        // Formaterer værdien af en parameter i en måling i henhold til profilens ValueFormat.
         private static string FormatValue(WeatherDto item, ParameterProfile profile)
         {
             var parameter = item.Parameters.FirstOrDefault(p => string.Equals(p.Type, profile.Type, StringComparison.OrdinalIgnoreCase));
