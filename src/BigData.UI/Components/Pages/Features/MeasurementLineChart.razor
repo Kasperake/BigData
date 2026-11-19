@@ -1,0 +1,29 @@
+@using BigData.UI.Clients.Models
+@using MudBlazor.Charts
+
+<MudCard Elevation="1">
+    <MudCardHeader>
+        <CardHeaderContent>
+            <MudText Typo="Typo.h6">@Profile.DisplayName</MudText>
+            <MudText Typo="Typo.body2" Color="Color.Secondary">@_subtitle</MudText>
+        </CardHeaderContent>
+    </MudCardHeader>
+    <MudCardContent>
+        @if (_series.Count == 0)
+        {
+            <MudText Typo="Typo.body2">No @Profile.Label.ToLowerInvariant() data for the selected stations.</MudText>
+        }
+        else
+        {
+            <MudChart T="double"
+                      ChartType="ChartType.Timeseries"
+                      ChartSeries="@_series"
+                      ChartOptions="@_options"
+                      CanHideSeries="true"
+                      Width="100%"
+                      Height="350px" />
+        }
+    </MudCardContent>
+</MudCard>
+
+

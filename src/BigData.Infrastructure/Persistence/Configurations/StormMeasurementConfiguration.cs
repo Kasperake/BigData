@@ -9,11 +9,13 @@ internal class StormMeasurementConfiguration : IEntityTypeConfiguration<StormMea
     public void Configure(EntityTypeBuilder<StormMeasurement> builder)
     {
         builder.HasKey(sm => sm.Id);
-        builder.Property(sm => sm.StationId).IsRequired();
+        builder.Property(sm => sm.StationId);
         builder.Property(sm => sm.ObservedAtUtc).IsRequired();
         builder.HasMany(sm => sm.Parameters)
                .WithOne()
                .HasForeignKey("StormMeasurementId")
                .IsRequired();
+
+        builder.HasIndex(m => m.StationId);
     }
 }

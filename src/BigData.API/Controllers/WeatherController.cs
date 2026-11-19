@@ -1,6 +1,4 @@
-﻿using BigData.API.Contracts;
-using BigData.API.Mappers;
-using BigData.Application.GetWeatherObservations;
+﻿using BigData.Application.GetMeasurementsForDisplay;
 using Cqrs.Abstractions;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,11 +8,10 @@ namespace BigData.API.Controllers
     [ApiController]
     public class WeatherController(IMediator mediator) : ControllerBase
     {
-        [HttpGet]
-        public async Task<ActionResult<GetWeatherObservationsApiResponse>> GetAllAsync(int page = 1, int pageSize = 50, CancellationToken cancellationToken = default)
+        [HttpGet("GetForDisplay")]
+        public async Task<ActionResult<GetMeasurementsForDisplayResponse>> GetAllForDisplayAsync(CancellationToken cancellationToken = default)
         {
-            var response = await mediator.QueryAsync(new GetWeatherObservationsQuery(page, pageSize), cancellationToken);
-            return response.ToApiResponse();
+            return await mediator.QueryAsync(new GetMeasurementsForDisplayQuery(), cancellationToken);
         }
     }
 }

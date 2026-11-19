@@ -4,52 +4,203 @@
 @using BigData.UI.Components.Pages.Features
 @inject IDialogService DialogService
 @inject IWeatherClient WeatherClient
+@inject ISnackbar Snackbar
 
+<PageTitle>Measurements</PageTitle>
+
+@if (_loading)
+{
+    <MudProgressLinear Color="Color.Primary" Indeterminate="true" />
+}
+else if (_items.Count == 0)
+{
+    <MudAlert Severity="Severity.Info">No measurements available.</MudAlert>
+}
+else
+{
     <MudGrid>
-        <MudItem>
-        <MudDataGrid T="GetWeatherObservationsItem"
-                     ServerData="@GetData"
-                     RowsPerPage="@PageSize">
+        <MudItem xs="12" md="4">
+            <MudSelect T="string"
+                       Label="Countries"
+                       MultiSelection="true"
+                       SelectAll="true"
+                       SelectedValues="@_selectedCountries"
+                       SelectedValuesChanged="@OnCountriesChanged"
+                       Variant="Variant.Outlined">
+                @foreach (var country in _countries)
+                {
+                    <MudSelectItem T="string" Value="@country">@country</MudSelectItem>
+                }
+            </MudSelect>
+        </MudItem>
 
-            <Columns>
-                <PropertyColumn Property="x => x.StationId" Title="Station" Filterable="true" />
-                <PropertyColumn Property="x => x.Value" Title="Value" Filterable="true" />
-                <PropertyColumn Property="x => x.Latitude" Title="Latitude" Filterable="true" />
-                <PropertyColumn Property="x => x.Longitude" Title="Longitude" Filterable="true" />
-                <PropertyColumn Property="x => x.ObservedAtUtc" Title="Observed At (UTC)" Filterable="true" />
-                <TemplateColumn>
-                    <CellTemplate>
-                        <MudButton Size="@Size.Small" Variant="@Variant.Filled" Color="@Color.Primary" OnClick="@(() => OpenDialogAsync(context.Item))">Details</MudButton>
-                    </CellTemplate>
-                </TemplateColumn>
-            </Columns>
-            <PagerContent>
-                <MudDataGridPager T="GetWeatherObservationsItem" />
-            </PagerContent>
-        </MudDataGrid>
-            </MudItem>
+        <MudItem xs="12" md="4">
+            <MudSelect T="string"
+                       Label="Stations"
+                       MultiSelection="true"
+                       SelectAll="true"
+                       SelectedValues="@_selectedStations"
+                       SelectedValuesChanged="@OnStationsChanged"
+                       ToStringFunc="@StationLabel"
+                       Variant="Variant.Outlined">
+                @foreach (var station in VisibleStations)
+                {
+                    <MudSelectItem T="string" Value="@station.Id">@station.Label</MudSelectItem>
+                }
+            </MudSelect>
+        </MudItem>
+
+        <MudItem xs="12" md="4">
+            <MudSelect T="ParameterProfile"
+                       Label="Parameter"
+                       Value="@_selectedParameter"
+                       ValueChanged="@OnParameterChanged"
+                       ToStringFunc="@(p => p?.DisplayName ?? string.Empty)"
+                       Variant="Variant.Outlined">
+                @foreach (var parameter in _parameters)
+                {
+                    <MudSelectItem T="ParameterProfile" Value="@parameter">@parameter.DisplayName</MudSelectItem>
+                }
+            </MudSelect>
+        </MudItem>
+
+        <MudItem xs="12">
+            <MeasurementLineChart Items="@_filteredItems" Profile="@_selectedParameter" />
+        </MudItem>
+
+        <MudItem xs="12">
+            <MudDataGrid T="WeatherDto"
+                         Items="@_filteredItems"
+                         RowsPerPage="20"
+                         Dense="true"
+                         SortMode="SortMode.Single">
+                <Columns>
+                    <PropertyColumn Property="x => x.StationName" Title="Station" />
+                    <PropertyColumn Property="x => x.StationId" Title="Station Id" />
+                    <PropertyColumn Property="x => x.CountryCode" Title="Country" />
+                    <PropertyColumn Property="x => x.ObservedAtUtc" Title="Observed At (UTC)" Format="yyyy-MM-dd HH:mm"
+                                    InitialDirection="SortDirection.Descending" />
+                    @foreach (var parameter in _parameters)
+                    {
+                        <TemplateColumn T="WeatherDto" Title="@parameter.DisplayName" Sortable="false">
+                            <CellTemplate>@FormatValue(context.Item, parameter)</CellTemplate>
+                        </TemplateColumn>
+                    }
+                    <TemplateColumn T="WeatherDto" Sortable="false">
+                        <CellTemplate>
+                            <MudButton Size="@Size.Small" Variant="@Variant.Filled" Color="@Color.Primary"
+                                       OnClick="@(() => OpenDialogAsync(context.Item))">Details</MudButton>
+                        </CellTemplate>
+                    </TemplateColumn>
+                </Columns>
+                <PagerContent>
+                    <MudDataGridPager T="WeatherDto" />
+                </PagerContent>
+            </MudDataGrid>
+        </MudItem>
     </MudGrid>
+}
 
 @code {
-    private IEnumerable<GetWeatherObservationsItem> Items = [];
-    private int PageSize = 20;
+    private sealed record StationOption(string Id, string Label, string Country);
 
-    private async Task<GridData<GetWeatherObservationsItem>> GetData(GridState<GetWeatherObservationsItem> state, CancellationToken ct)
+    // Label used in the country filter for stations without a country code.
+    private const string NoCountry = "Unknown";
+
+    private bool _loading = true;
+    private List<WeatherDto> _items = [];
+    private List<WeatherDto> _filteredItems = [];
+    private List<StationOption> _stations = [];
+    private List<string> _countries = [];
+    private List<ParameterProfile> _parameters = [];
+    private IReadOnlyCollection<string> _selectedCountries = [];
+    private IReadOnlyCollection<string> _selectedStations = [];
+
+    /// <summary>Stations belonging to the selected countries; this is what the station picker offers.</summary>
+    private IEnumerable<StationOption> VisibleStations => _stations.Where(s => _selectedCountries.Contains(s.Country));
+    private ParameterProfile _selectedParameter = ParameterProfile.Temperature;
+
+    protected override async Task OnInitializedAsync()
     {
-        var page = state.Page + 1;
-        var pageSize = state.PageSize;
-
-        var result = await WeatherClient.GetAsync(page, pageSize, ct);
-
-        return new GridData<GetWeatherObservationsItem>
+        try
         {
-            Items = result.Items ?? [],
-            TotalItems = result.TotalCount
-        };
+            var response = await WeatherClient.GetForDisplayAsync();
+            _items = response.Items;
+        }
+        catch (HttpRequestException ex)
+        {
+            Snackbar.Add($"Could not load measurements: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            _loading = false;
+        }
+
+        _stations = _items
+            .GroupBy(i => i.StationId ?? "unknown")
+            .Select(g =>
+            {
+                var name = g.Select(i => i.StationName).FirstOrDefault(n => !string.IsNullOrWhiteSpace(n));
+                var country = g.Select(i => i.CountryCode).FirstOrDefault(c => !string.IsNullOrWhiteSpace(c));
+                var details = country is null ? g.Key : $"{g.Key}, {country}";
+                return new StationOption(g.Key, name is null ? details : $"{name} ({details})", country ?? NoCountry);
+            })
+            .OrderBy(s => s.Label)
+            .ToList();
+
+        _countries = _stations.Select(s => s.Country).Distinct().OrderBy(c => c).ToList();
+
+        _parameters = _items
+            .SelectMany(i => i.Parameters)
+            .Select(p => p.Type)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .Select(ParameterProfile.For)
+            .OrderBy(p => p.Label)
+            .ToList();
+
+        _selectedParameter = _parameters.FirstOrDefault(p => p == ParameterProfile.Temperature)
+                             ?? _parameters.FirstOrDefault()
+                             ?? ParameterProfile.Temperature;
+
+        // Default to all countries and stations; the user narrows down from there.
+        _selectedCountries = _countries.ToList();
+        _selectedStations = _stations.Select(s => s.Id).ToList();
+        ApplyFilter();
     }
 
-    // Dialog for detail button
-    private Task OpenDialogAsync(GetWeatherObservationsItem item)
+    private void OnCountriesChanged(IEnumerable<string?> values)
+    {
+        _selectedCountries = values.OfType<string>().ToList();
+        // Reset the station selection to every station in the chosen countries.
+        _selectedStations = VisibleStations.Select(s => s.Id).ToList();
+        ApplyFilter();
+    }
+
+    private void OnStationsChanged(IEnumerable<string?> values)
+    {
+        _selectedStations = values.OfType<string>().ToList();
+        ApplyFilter();
+    }
+
+    private void OnParameterChanged(ParameterProfile profile) => _selectedParameter = profile;
+
+    private void ApplyFilter()
+    {
+        var selected = _selectedStations.ToHashSet();
+        // New list instance so the chart component detects the change.
+        _filteredItems = _items.Where(i => selected.Contains(i.StationId ?? "unknown")).ToList();
+    }
+
+    private string StationLabel(string? id) =>
+        _stations.FirstOrDefault(s => s.Id == id)?.Label ?? id ?? string.Empty;
+
+    private static string FormatValue(WeatherDto item, ParameterProfile profile)
+    {
+        var parameter = item.Parameters.FirstOrDefault(p => string.Equals(p.Type, profile.Type, StringComparison.OrdinalIgnoreCase));
+        return parameter is null ? "–" : parameter.Value.ToString(profile.ValueFormat);
+    }
+
+    private Task OpenDialogAsync(WeatherDto item)
     {
         var options = new DialogOptions { CloseOnEscapeKey = true };
 
