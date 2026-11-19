@@ -55,12 +55,12 @@ public static class ServiceCollectionExtensions
 
     private static IServiceCollection AddWorkerServices(this IServiceCollection services)
     {
-        //services.AddHostedService<DmiWeatherTempImportWorker>();
-        //services.AddHostedService<DmiWeatherPressureImportWorker>();
-        //services.AddHostedService<DmiWeatherWindDirectionImportWorker>();
-        //services.AddHostedService<DmiWeatherWindSpeedImportWorker>();
+        services.AddHostedService<DmiWeatherTempImportWorker>();
+        services.AddHostedService<DmiWeatherPressureImportWorker>();
+        services.AddHostedService<DmiWeatherWindDirectionImportWorker>();
+        services.AddHostedService<DmiWeatherWindSpeedImportWorker>();
         services.AddHostedService<MongoDbTransformationWorker>();
-        //services.AddHostedService<DmiStationImportWorker>();
+        services.AddHostedService<DmiStationImportWorker>();
         return services;
     }
 
