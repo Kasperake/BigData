@@ -15,13 +15,15 @@
                 else
                 {
                     <MudForm ReadOnly="true" Spacing="2">
-                        <MudTextField T="string" Label="Id" Text="@Item.Id.ToString()"/>
-                        <MudTextField T="string" Label="StationId" Text="@Item.StationId.ToString()" />
-                        <MudTextField T="string" Label="Latitude" Text="@Item.Latitude.ToString()" />
-                        <MudTextField T="string" Label="Longitude" Text="@Item.Longitude.ToString()" />
-                        <MudTextField T="string" Label="Created At (UTC)" Text="@Item.CreatedAtUtc.ToString()" />
-                        <MudTextField T="string" Label="Observed At (UTC)" Text="@Item.ObservedAtUtc.ToString()" />
-                        <MudTextField T="string" Label="ParameterId" Text="@Item.ParameterId.ToString()" />
+                        <MudTextField T="string" Label="Station" Text="@Item.StationName" />
+                        <MudTextField T="string" Label="Station Id" Text="@Item.StationId" />
+                        <MudTextField T="string" Label="Country" Text="@(Item.CountryCode ?? "–")" />
+                        <MudTextField T="string" Label="Observed At (UTC)" Text="@Item.ObservedAtUtc.ToString("yyyy-MM-dd HH:mm")" />
+                        @foreach (var parameter in Item.Parameters.OrderBy(p => p.Type))
+                        {
+                            var profile = ParameterProfile.For(parameter.Type);
+                            <MudTextField T="string" Label="@profile.DisplayName" Text="@parameter.Value.ToString(profile.ValueFormat)" />
+                        }
                     </MudForm>
                 }
             </MudCardContent>
@@ -38,7 +40,7 @@
     private IMudDialogInstance MudDialog { get; set; } = default!;
 
     [Parameter]
-    public GetWeatherObservationsItem? Item { get; set; }
+    public WeatherDto? Item { get; set; }
 
     private void Close() => MudDialog.Close();
 }

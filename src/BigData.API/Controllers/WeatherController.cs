@@ -1,6 +1,4 @@
-﻿using BigData.API.Contracts;
-using BigData.API.Mappers;
-using BigData.Application.GetMeasurementsForDisplay;
+﻿using BigData.Application.GetMeasurementsForDisplay;
 using Cqrs.Abstractions;
 using Microsoft.AspNetCore.Mvc;
 

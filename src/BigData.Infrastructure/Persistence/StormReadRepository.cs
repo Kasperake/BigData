@@ -31,6 +31,7 @@ internal class StormReadRepository(WeatherDWDbContext dbContext) : IStormReadRep
                       {
                           StationId = m.StationId,
                           StationName = s.Name,
+                          CountryCode = s.CountryCode,
                           ObservedAtUtc = m.ObservedAtUtc,
                           Parameters = m.Parameters.Select(p => new ParameterDto
                           {
