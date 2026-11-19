@@ -69,32 +69,58 @@ else
         </MudItem>
 
         <MudItem xs="12">
-            <MudDataGrid T="WeatherDto"
-                         Items="@_filteredItems"
+            <MudDataGrid T="StationRow"
+                         Items="@_stationRows"
                          RowsPerPage="20"
                          Dense="true"
                          SortMode="SortMode.Single">
                 <Columns>
+                    <HierarchyColumn T="StationRow" />
                     <PropertyColumn Property="x => x.StationName" Title="Station" />
                     <PropertyColumn Property="x => x.StationId" Title="Station Id" />
                     <PropertyColumn Property="x => x.CountryCode" Title="Country" />
-                    <PropertyColumn Property="x => x.ObservedAtUtc" Title="Observed At (UTC)" Format="yyyy-MM-dd HH:mm"
+                    <PropertyColumn Property="x => x.LatestObservedAtUtc" Title="Latest (UTC)" Format="yyyy-MM-dd HH:mm"
                                     InitialDirection="SortDirection.Descending" />
+                    <PropertyColumn Property="x => x.Measurements.Count" Title="Measurements" />
                     @foreach (var parameter in _parameters)
                     {
-                        <TemplateColumn T="WeatherDto" Title="@parameter.DisplayName" Sortable="false">
-                            <CellTemplate>@FormatValue(context.Item, parameter)</CellTemplate>
+                        <TemplateColumn T="StationRow" Title="@parameter.DisplayName" Sortable="false">
+                            <CellTemplate>@FormatLatestValue(context.Item, parameter)</CellTemplate>
                         </TemplateColumn>
                     }
-                    <TemplateColumn T="WeatherDto" Sortable="false">
-                        <CellTemplate>
-                            <MudButton Size="@Size.Small" Variant="@Variant.Filled" Color="@Color.Primary"
-                                       OnClick="@(() => OpenDialogAsync(context.Item))">Details</MudButton>
-                        </CellTemplate>
-                    </TemplateColumn>
                 </Columns>
+                <ChildRowContent>
+                    <MudSimpleTable Dense="true" Hover="true">
+                        <thead>
+                            <tr>
+                                <th>Observed At (UTC)</th>
+                                @foreach (var parameter in _parameters)
+                                {
+                                    <th>@parameter.DisplayName</th>
+                                }
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var measurement in context.Item.Measurements)
+                            {
+                                <tr>
+                                    <td>@measurement.ObservedAtUtc.ToString("yyyy-MM-dd HH:mm")</td>
+                                    @foreach (var parameter in _parameters)
+                                    {
+                                        <td>@FormatValue(measurement, parameter)</td>
+                                    }
+                                    <td>
+                                        <MudButton Size="@Size.Small" Variant="@Variant.Filled" Color="@Color.Primary"
+                                                   OnClick="@(() => OpenDialogAsync(measurement))">Details</MudButton>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </MudSimpleTable>
+                </ChildRowContent>
                 <PagerContent>
-                    <MudDataGridPager T="WeatherDto" />
+                    <MudDataGridPager T="StationRow" />
                 </PagerContent>
             </MudDataGrid>
         </MudItem>
@@ -104,12 +130,24 @@ else
 @code {
     private sealed record StationOption(string Id, string Label, string Country);
 
+    /// <summary>
+    /// One grid line per station. <see cref="Measurements"/> holds one entry per observation time
+    /// (parameters from the same time merged), ordered newest first.
+    /// </summary>
+    private sealed record StationRow(
+        string StationId,
+        string StationName,
+        string? CountryCode,
+        DateTime LatestObservedAtUtc,
+        IReadOnlyList<WeatherDto> Measurements);
+
     // Label used in the country filter for stations without a country code.
     private const string NoCountry = "Unknown";
 
     private bool _loading = true;
     private List<WeatherDto> _items = [];
     private List<WeatherDto> _filteredItems = [];
+    private List<StationRow> _stationRows = [];
     private List<StationOption> _stations = [];
     private List<string> _countries = [];
     private List<ParameterProfile> _parameters = [];
@@ -189,6 +227,40 @@ else
         var selected = _selectedStations.ToHashSet();
         // New list instance so the chart component detects the change.
         _filteredItems = _items.Where(i => selected.Contains(i.StationId ?? "unknown")).ToList();
+
+        _stationRows = _filteredItems
+            .GroupBy(i => i.StationId ?? "unknown")
+            .Select(g =>
+            {
+                // Merge measurements observed at the same time into a single line.
+                var measurements = g
+                    .GroupBy(i => i.ObservedAtUtc)
+                    .Select(t => t.First() with
+                    {
+                        Parameters = t
+                            .SelectMany(i => i.Parameters)
+                            .GroupBy(p => p.Type, StringComparer.OrdinalIgnoreCase)
+                            .Select(p => p.First())
+                            .ToList()
+                    })
+                    .OrderByDescending(i => i.ObservedAtUtc)
+                    .ToList();
+                return new StationRow(
+                    g.Key,
+                    measurements.Select(i => i.StationName).FirstOrDefault(n => !string.IsNullOrWhiteSpace(n)) ?? g.Key,
+                    measurements.Select(i => i.CountryCode).FirstOrDefault(c => !string.IsNullOrWhiteSpace(c)),
+                    measurements[0].ObservedAtUtc,
+                    measurements);
+            })
+            .ToList();
+    }
+
+    /// <summary>Most recent value of <paramref name="profile"/> reported by the station.</summary>
+    private static string FormatLatestValue(StationRow row, ParameterProfile profile)
+    {
+        var latest = row.Measurements.FirstOrDefault(m =>
+            m.Parameters.Any(p => string.Equals(p.Type, profile.Type, StringComparison.OrdinalIgnoreCase)));
+        return latest is null ? "–" : FormatValue(latest, profile);
     }
 
     private string StationLabel(string? id) =>
