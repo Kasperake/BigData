@@ -1,18 +1,15 @@
 namespace BigData.UI.Components.Pages.Features;
 
-/// <summary>
-/// Describes how a measurement parameter (as returned by the API in <c>ParameterDto.Type</c>)
-/// is labelled and charted. Keeps all "fit the chart to the measurement" rules in one place.
-/// </summary>
-/// <param name="Type">The parameter type string sent by the API (enum name, e.g. "Temperature").</param>
-/// <param name="Label">Human readable name.</param>
-/// <param name="Unit">Unit shown on the axis title and in the grid.</param>
-/// <param name="ValueFormat">.NET number format used on the Y axis and in tooltips.</param>
-/// <param name="StartAtZero">Force the Y axis to include 0 (values that can never be negative).</param>
-/// <param name="SuggestedMax">Suggested upper bound for the Y axis.</param>
+
+/// <param name="Type">Det navn API'en sender</param>
+/// <param name="Label">Det navn brugeren læser</param>
+/// <param name="Unit">Den unit der bliver angivet i vores chart</param>
+/// <param name="ValueFormat">Talformat brugt på Y-aksen og i tooltips.</param>
+/// <param name="StartAtZero">Tving Y-aksen til at inkludere 0 (værdier, der aldrig kan være negative).</param>
+/// <param name="SuggestedMax">Foreslået øvre grænse for Y-aksen.</param>
 /// <param name="MarkersOnly">
-/// Draw points without connecting lines. Used for circular values (wind direction) where a line
-/// from 350° to 10° would wrongly sweep across the whole axis.
+/// Tegn punkter uden forbindelseslinjer. Bruges til cirkulære værdier (vindretning), hvor en linje
+/// fra 350° til 10° forkert ville feje over hele aksen.
 /// </param>
 public sealed record ParameterProfile(
     string Type,
@@ -32,7 +29,7 @@ public sealed record ParameterProfile(
         new[] { Temperature, WindSpeed, WindDirection, Pressure }
             .ToDictionary(p => p.Type, StringComparer.OrdinalIgnoreCase);
 
-    /// <summary>Returns the profile for <paramref name="type"/>, or a generic line profile for unknown types.</summary>
+    /// <summary>Returnerer profilen "for" <paramref name="type"/>, eller hvis ukendt, en generisk profil.</summary>
     public static ParameterProfile For(string type) =>
         Known.TryGetValue(type, out var profile) ? profile : new ParameterProfile(type, type, string.Empty);
 
