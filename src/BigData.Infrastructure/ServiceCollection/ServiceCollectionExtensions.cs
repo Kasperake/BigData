@@ -1,7 +1,7 @@
-﻿using BigData.Application.Clients;
+﻿using BigData.Application.Abstractions;
+using BigData.Application.Clients;
 using BigData.Application.Repositories;
 using BigData.Domain.Repositories;
-using BigData.Infrastructure.Abstractions;
 using BigData.Infrastructure.BackgroundServices;
 using BigData.Infrastructure.Clients;
 using BigData.Infrastructure.Persistence;
@@ -33,13 +33,11 @@ public static class ServiceCollectionExtensions
         services.AddDbContext<WeatherDWDbContext>(options =>
     options.UseSqlServer(configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("ConnectionString is missing")));
 
-        // Auto commit unitofwork command behavior. 
-        services.AddScoped<IMongoDbUnitOfWork, MongoDbUnitOfWork>();
-        services.AddScoped<ISqlDWUnitOfWork, SqlDWUnitOfWork>();
+        // Handlers persist explicitly through these. Do NOT register Cqrs' IUnitOfWork: the pipeline would then
+        // wrap every command in a transaction, and with several registrations it silently picks the last one.
+        services.AddScoped<IMongoUnitOfWork, MongoUnitOfWork>();
+        services.AddScoped<ISqlUnitOfWork, SqlUnitOfWork>();
 
-        services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<IMongoDbUnitOfWork>());
-        services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<ISqlDWUnitOfWork>());
-        //services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<ISqlUnitOfWork>()); // This is only necessary for switching back to MSSQL. 
         return services;
     }
 
@@ -57,12 +55,12 @@ public static class ServiceCollectionExtensions
 
     private static IServiceCollection AddWorkerServices(this IServiceCollection services)
     {
-        //services.AddHostedService<DmiWeatherTempImportWorker>();
-        //services.AddHostedService<DmiWeatherPressureImportWorker>();
-        //services.AddHostedService<DmiWeatherWindDirectionImportWorker>();
-        //services.AddHostedService<DmiWeatherWindSpeedImportWorker>();
+        services.AddHostedService<DmiWeatherTempImportWorker>();
+        services.AddHostedService<DmiWeatherPressureImportWorker>();
+        services.AddHostedService<DmiWeatherWindDirectionImportWorker>();
+        services.AddHostedService<DmiWeatherWindSpeedImportWorker>();
         services.AddHostedService<MongoDbTransformationWorker>();
-        //services.AddHostedService<DmiStationImportWorker>();
+        services.AddHostedService<DmiStationImportWorker>();
         return services;
     }
 

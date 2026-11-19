@@ -86,14 +86,9 @@ namespace BigData.Infrastructure.Migrations.WeatherDWDb
                     b.Property<string>("StationId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<Guid?>("StationId1")
-                        .HasColumnType("uniqueidentifier");
-
                     b.HasKey("Id");
 
                     b.HasIndex("StationId");
-
-                    b.HasIndex("StationId1");
 
                     b.ToTable("StormMeasurements");
                 });
@@ -105,18 +100,6 @@ namespace BigData.Infrastructure.Migrations.WeatherDWDb
                         .HasForeignKey("StormMeasurementId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("BigData.Domain.Entities.StormMeasurement", b =>
-                {
-                    b.HasOne("BigData.Domain.Entities.Station", null)
-                        .WithMany("StormMeasurements")
-                        .HasForeignKey("StationId1");
-                });
-
-            modelBuilder.Entity("BigData.Domain.Entities.Station", b =>
-                {
-                    b.Navigation("StormMeasurements");
                 });
 
             modelBuilder.Entity("BigData.Domain.Entities.StormMeasurement", b =>

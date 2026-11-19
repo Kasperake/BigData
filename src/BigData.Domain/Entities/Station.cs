@@ -10,7 +10,6 @@ public sealed class Station
     public string StationId { get; private set; } = null!;
     public string CountryCode { get; private set; } = null!;
     public string Name { get; private set; } = null!;
-    public ICollection<StormMeasurement> StormMeasurements { get; private set; }
 
     public static Station Create(Guid id, string stationId, string countryCode, string name)
     {

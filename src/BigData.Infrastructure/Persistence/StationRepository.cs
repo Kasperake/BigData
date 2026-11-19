@@ -24,9 +24,4 @@ public class StationRepository(WeatherDWDbContext dbContext) : IStationRepositor
         dbContext.Stations.Add(station);
         return Task.CompletedTask;
     }
-
-    public Task SaveChangesAsync(CancellationToken cancellationToken)
-    {
-        return dbContext.SaveChangesAsync(cancellationToken);
-    }
 }

@@ -2,4 +2,4 @@ using Cqrs.Abstractions;
 
 namespace BigData.Application.SyncStations;
 
-public sealed record SyncStationsCommand : ICommand, IManuallyPersistedCommand;
+public sealed record SyncStationsCommand : ICommand;
