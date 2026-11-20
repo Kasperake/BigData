@@ -17,7 +17,6 @@ namespace BigData.UI.Components.Pages.Features
         private TimeSeriesChartOptions _options = new();
         private string _subtitle = string.Empty;
 
-        // Only rebuild when the inputs actually change; building series on every render is wasteful.
         private IReadOnlyList<WeatherDto>? _lastItems;
         private ParameterProfile? _lastProfile;
 
@@ -97,7 +96,6 @@ namespace BigData.UI.Components.Pages.Features
 
             if (Profile.MarkersOnly)
             {
-                // Points without connecting lines (circular values must not be interpolated).
                 options.ShowDataMarkers = true;
                 options.LineStrokeWidth = 0;
             }
@@ -105,14 +103,12 @@ namespace BigData.UI.Components.Pages.Features
             return options;
         }
 
-        /// <summary>Legend label, e.g. "København Lufthavn (06180, DNK)". Same format as the station picker.</summary>
         private static string LegendName(string stationId, string? stationName, string? countryCode)
         {
             var details = string.IsNullOrWhiteSpace(countryCode) ? stationId : $"{stationId}, {countryCode}";
             return string.IsNullOrWhiteSpace(stationName) ? details : $"{stationName} ({details})";
         }
 
-        /// <summary>Picks a "nice" label spacing that yields roughly 6–12 labels on the X axis.</summary>
         private static TimeSpan LabelSpacingFor(TimeSpan range)
         {
             TimeSpan[] steps =
