@@ -18,7 +18,7 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
-        AddWorkerServices(services);
+        //AddWorkerServices(services);
         AddPersistence(services, configuration);
         AddRepositories(services);
         AddDmiWeatherClient(services, configuration);
